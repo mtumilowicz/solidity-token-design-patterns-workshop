@@ -10,7 +10,20 @@
     * https://mirror.xyz/0xbuidlerdao.eth/lOE5VN-BHI0olGOXe27F0auviIuoSlnou_9t3XRJseY
     * https://medium.com/what-is-infura/what-is-infura-59dbdd778455
     * https://ethereum.stackexchange.com/questions/6897/what-is-the-difference-between-truffle-and-remix
-
+    * https://stackoverflow.com/questions/74164255/x19ethereum-signed-message-n32-prefix-meaning
+    * https://ethereum.stackexchange.com/questions/128552/why-would-you-use-a-signed-message-to-verify-the-sender
+    * https://medium.com/mycrypto/the-magic-of-digital-signatures-on-ethereum-98fe184dc9c7
+    * https://medium.com/@kaishinaw/signing-and-verifying-ethereum-messages-f5acd41ca1a8
+    * https://github.com/ethers-io/ethers.js/issues/555
+    * https://medium.com/@codetractio/walkthrough-of-an-ethereum-improvement-proposal-eip-6fda3966d171
+    * https://medium.com/@moplabs/eip-155-with-mopai-75b322962d1b
+    * https://medium.com/coinmonks/eip712-a-full-stack-example-e12185b03d54
+    * https://medium.com/coinmonks/ethereum-signatures-for-hackers-and-auditors-101-4da766cd6344
+    * https://blog.hook.xyz/validate-eip-712/
+    * https://ethereum.stackexchange.com/questions/125128/what-is-domain-separator-in-eip712
+    * https://kristaps.me/blog/solidity-eip-712-sign-ethers-js/
+    * https://dev.to/fassko/what-are-meta-transactions-the-eip-712-standard-and-how-to-sign-a-message-with-metamask-4mil
+    * https://medium.com/metamask/eip712-is-coming-what-to-expect-and-how-to-use-it-bb92fd1a7a26
 
 * token burning
     * It is typically performed by the development team which can also buy back tokens and burn them
@@ -123,19 +136,238 @@
                     }
                     ```
         * solution
-            * EIP155 standard signatures will hash 9 RLP-encoded elements (nonce, gasPrice, gas, to, value, data, chainId, 0, 0)
+            * EIP155
+                * called "simple replay attack protection"
+                * defines the chainID field in Ethereum transactions to prevent replay attacks
+                * before EIP155
+                    * there are 6 inputs to an Ethereum transaction
+                        * nonce, gasPrice, gasLimit, to, value, data
+                    * transaction is not chain specific
+                        * same addresses in different networks => can lead to unintended transactions
                 * user should sign the data along with a unique nonce value each time
-                * every transaction signature should also encapsulate a unique identifier for the specific network
-            * example
-                ```
-                mapping(address => uint256) public nonces;
+                    * example
+                        ```
+                        mapping(address => uint256) public nonces;
 
-                function deposit(uint256 nonce) public payable {
-                    require(nonce > nonces[msg.sender], "Invalid nonce");
-                    nonces[msg.sender] = nonce;
-                    balances[msg.sender] += msg.value;
-                }
-                ```
+                        function deposit(uint256 nonce) public payable {
+                            require(nonce > nonces[msg.sender], "Invalid nonce");
+                            nonces[msg.sender] = nonce;
+                            balances[msg.sender] += msg.value;
+                        }
+                        ```
+                * every transaction signature should also encapsulate a unique identifier for the specific network
+            * EIP191
+                * called "signature data standard"
+                * introduces a prefix to the data that is being signed
+                    * example
+                        ```
+                        "\x19Ethereum Signed Message:\n32"
+                        ```
+                        * byte `0x19` standardized because an already existing implementation (in the Go Ethereum client software)
+                        was using it before the standard was finalized
+                        * last number `32` is the byte length of the message (excluding the prefix)
+                * reason for prefixing is so that a cleverly designed message cannot possibly be a valid transaction
+                    * allowing signing raw messages, without a prefix, enables an app to steal all ether, tokens and assets
+                        * purpose is entirely to invalidate any payload as a valid RLP encoded transaction
+                        * MetaMask does not permit you to perform this operation
+                            * it will always force prefixing a signed message even when the message is a hash
+                    * when you create a transaction: unsigned transaction -> hash it -> sign it
+                    * when you create a message: unsigned message -> prefix it -> hash it -> sign it
+                    * example
+                        ```
+                        let unsignedTransaction = "0xe980850218711a00825208948ba1f109551bd432803012645ac136ddd64dba72880de0b6b3a764000080";
+                        ```
+                        decoded with https://flightwallet.github.io/decode-eth-tx/
+                        ```
+                        {
+                          "nonce": 0,
+                          "gasPrice": 9000000000,
+                          "gasLimit": 21000,
+                          "to": "0x8ba1f109551bd432803012645ac136ddd64dba72",
+                          "value": 1000000000000000000,
+                          "data": ""
+                        }
+                        ```
+                        * if attacked gives you this hash and you sign it => it is now a valid signed transaction which will send 1 ether to attacker
+                        * string that begins with "\x19Ethereum Signed Message:" is not a valid transaction
+                            * it is safe to sign it
+                * eliminates the risk of replay attacks on other EVM platforms
+                    * if there were no platform-specific prefixes, the resulting signature would be the same for all platforms
+                * use case
+                    * smart contract needs to verify a signed message
+                    * external systems need to interact with Ethereum transactions in a standardized way
+                * list of chain ids: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md?ref=blog.hook.xyz#list-of-chain-ids
+            * EIP712
+                * is a more advanced and secure method of signing a transaction
+                * provides a way to hash and sign typed structs rather than just strings
+                    * uses the keccak256 hashing algorithm
+                * requires TypedData (JSON object input)
+                    * example
+                        ```
+                        typedData := apitypes.TypedData{
+                        	Types:       types,
+                        	PrimaryType: "ERC721Order",
+                        	Domain:      domain,
+                        	Message:     message,
+                        }
+                        ```
+                    * includes the following properties
+                        * types
+                            * used to define the structs that will be used in the message and specify their types
+                            * is a mapping of string to a Type array
+                                * example
+                                    ```
+                                    types := apitypes.Types{
+                                    	"EIP712Domain": {
+                                    		{Name: "name", Type: "string"},
+                                    		{Name: "version", Type: "string"},
+                                    		{Name: "chainId", Type: "uint256"},
+                                    		{Name: "verifyingContract", Type: "address"},
+                                    	},
+                                    	"ERC721Order": {
+                                    		{Name: "direction", Type: "uint8"},
+                                    		...
+                                    	},
+                                    	"Fee": { // custom types
+                                        	{Name: "recipient", Type: "address"},
+                                        	{Name: "amount", Type: "uint256"},
+                                        	{Name: "feeData", Type: "bytes"},
+                                        },
+                                    ```
+                        * domain
+                            * information specific to the protocol contract that the dapp used when asking for a signature
+                            * designed to include bits of DApp unique information
+                                * name
+                                    * human-readable string that represents the name of the domai
+                                    * often used to identify the dApp or smart contract associated with the message
+                                * version
+                                    * string representing the version of the domain
+                                    * can be useful for distinguishing between different versions of the same dApp or smart contract
+                                * chainId
+                                    * wallet providers should prevent signing if it does not match the network it is currently connected to
+                                    * it is crucial that chainId is verified on-chain
+                                        * contracts have no way to find out which chain ID they are on
+                                            * developers must hardcode chainId into their contracts and take extra care to make sure that it corresponds to the network they deploy on
+                                * verifyingContract
+                                    * address of the smart contract that will verify the signed message
+                            * domain separator
+                                * information from the domain also needs to be hashed and used as a domain separator
+                                * purpose is to disambiguate between two dapps with identical structures
+                                    * in order to avoid generating the same signatures for both
+                                    * example
+                                        * two DApps come up with an identical structure like Transfer(address from,address to,uint256 amount)
+                                        * with domain separator the dApp developers are guaranteed that there can be no signature collision
+                        * primaryType
+                            * string that represents the outermost type of the message object
+                        * message
+                            * contains the order element names as strings mapped to their values
+                            * example
+                                ```
+                                {
+                                    amount: 100,
+                                    token: “0x….”,
+                                    id: 15,
+                                    bidder: {
+                                        userId: 323,
+                                        wallet: “0x….”
+                                    }
+                                }
+                                ```
+                                can be split into two data structures
+                                ```
+                                Bid: {
+                                    amount: uint256,
+                                    bidder: Identity
+                                }
+                                Identity: {
+                                    userId: uint256,
+                                    wallet: address
+                                }
+                                ```
+                        * example
+                            ```
+                            domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
+                            typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.M
+                            rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
+                            hashBytes := keccak256(rawData)
+                            hash := common.BytesToHash(hashBytes)
+                            ```
+                * standard for secure off-chain signature verification on the Ethereum blockchain
+                * signature verification
+                    * process of checking that the address of the signer is equal to the address that you derive from the signature
+                        ![Alt Text](img/verifying_signature.png)
+                    * ecrecover
+                        * is vulnerable
+                            * it interprets v values of both 27 and 28 as equivalent
+                                * it only checks if v is greater than or equal to 27
+                                * signatures produced with both v = 27 and v = 28 will yield the same public key
+                            * use: OpenZeppelin’s ECDSA library
+                        * used to derive the address of a sender based on the digital signature
+                        * needs assembly
+                    * example
+                        * replicate this formatting/hash function
+                        ```
+                        struct Identity {
+                            uint256 userId;
+                            address wallet;
+                        }
+                        struct Bid {
+                            uint256 amount;
+                            Identity bidder;
+                        }
+
+                        string private constant IDENTITY_TYPE = "Identity(uint256 userId,address wallet)";
+                        string private constant BID_TYPE = "Bid(uint256 amount,Identity bidder)Identity(uint256 userId,address wallet)";
+
+                        uint256 constant chainId = 1;
+                        address constant verifyingContract = 0x1C56346CD2A2Bf3202F771f50d3D14a367B48070;
+                        bytes32 constant salt = 0xf2d857f4a3edcb9b78b4d503bfe733db1e3f6cdc2b7971ee739626c97e86a558;
+                        string private constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
+                        bytes32 private constant DOMAIN_SEPARATOR = keccak256(abi.encode(
+                            EIP712_DOMAIN_TYPEHASH,
+                            keccak256("My amazing dApp"),
+                            keccak256("2"),
+                            chainId,
+                            verifyingContract,
+                        ));
+
+                        function hashIdentity(Identity identity) private pure returns (bytes32) {
+                            return keccak256(abi.encode(
+                                IDENTITY_TYPEHASH,
+                                identity.userId,
+                                identity.wallet
+                            ));
+                        }
+                        function hashBid(Bid memory bid) private pure returns (bytes32){
+                            return keccak256(abi.encodePacked(
+                                "\\x19\\x01",
+                               DOMAIN_SEPARATOR,
+                               keccak256(abi.encode(
+                                    BID_TYPEHASH,
+                                    bid.amount,
+                                    hashIdentity(bid.bidder)
+                                ))
+                            ));
+
+                        function verify(address signer, Bid memory bid, sigR, sigS, sigV) public pure returns (bool) {
+                            return signer == ecrecover(hashBid(bid), sigV, sigR, sigS);
+                        }
+                        ```
+                * wallets like Metamask can display the message in a more user-friendly manner
+                    * the signer can actually check the data before signing
+                        * display in a human-readable way that users can understand and review before signing
+                    * example
+                        ![Alt Text](img/eip721_metamask.png)
+                * before EIP712
+                    * it was difficult for users to verify the data they were asked to sign
+                    * wallet signing interfaces would display a hashed message string
+                        * the signer would have to assume that hash matched the message they thought they were signing
+                * use case
+                    * meta-transactions
+                        * relayer pays the gas fees on behalf of the user
+                            * relayer = service responsible for submitting transactions on behalf of users
+                        * users sign a request (off-chain) for a specific action they want to perform on the blockchain
+                            * includes information like the target contract, function to call, and any required parameters
     * manipulating contract balance
         * problem: ether can be sent forcibly to a contract
             * if contract has some decision logic using `address(this).balance` - attacked can influence it
@@ -165,56 +397,60 @@
 * solidity-coverage
     * ode coverage tool specifically designed for Solidity smart contracts
 
-# for nft
-* “with the ERC20 token standard APIs, it is not possible to get notifications of another action being triggered when an ERC20 standard-specific token is received at the deployed contract”
-  * “The token transfers are received at the contract silently.”
-  * “The ERC223 standard provides the methods that will be called once the tokens are transferred”
-* “In the OpenZeppelin's ERC20 standard implementation, the transfer() and transferFrom() functions also do not have a check for the contract address itself, such as require(to != address(this)). There is a reasoning behind this—to reduce the gas cost of the transaction, as there would be millions of transactions performed using these functions.”
-  * “if the tokens are transferred to the contract address itself, those tokens will be locked forever because the contract code does not have a way to take the tokens out of the contract.”
-  * “It is not recommended to change the ERC20 implementation and add the contract address check in it.”
-  * “However, the functions related to reclaiming tokens can be used in your ERC20 implementation”
-  * “This would enable the reclaiming of your contract-specific tokens, as well as other ERC20-specific tokens that were mistakenly sent to the contract”
-* “The implementation of the approve() function that we looked at in the previous section is prone to front-running attacks.”
-  * “An attacker who initiates a transaction which is to be executed before a specific pending transaction that could benefit an attacker financially is called a front-running attack.”
-    * “On the Ethereum blockchain, the transaction gets executed based on the GasPrice someone is offering to process their transaction.”
-    * “anyone can read the transactions that are still pending and waiting to be executed in the transaction pool since Ethereum is a public blockchain”
-    * “An attacker would observe the transactions that are still pending in the transaction pool and trigger some transaction that could benefit them.”
-    * “Originally, Alice wanted Bob to get 1,500 tokens only. However, using the front-running attack, Bob ended up getting, in total, 2,500 tokens.”
-      * “For example, after calling the approve() function once, if you want to change it without being attacked using front-running, you can use the increaseApproval() or decreaseApproval() functions.”
-    * “To prevent front-running attacks, there are some techniques we can follow.”
-      * “You can use the following implementation of the approve() function, which ensures that, before updating the value, it should be set to zero”
-        * “require(_value == 0 || allowed[msg.sender][_spender] == 0);”
-* “To transfer the tokens using the transferFrom() function, approver must have called the approve() function prior.”
-* “if you are calling the transferFrom() function from within a Solidity contract, it is recommended to enclose the call with require() to ensure that the token transfer executed successfully and, in case of any transfer failure, the transaction should revert.”
-  * “require(ERC20.transferFrom(from, to, value));”
-* “There are some advanced functions that were recently added in the ERC20 token implementations.”
-  * “However, these functions are not part of the ERC20 standard APIs”
-  * “These functions are just added to improve usage and reduce security issues and attacks”
-  * i“n the new OpenZeppelin implementation of ERC20 contracts, there are more functions such as _mint(), _burn(), and _burnFrom() that were also added”
-* “ERC721 is a Non-Fungible Token (NFT) standard”
-  * “This standard is used in many cases where you want to transfer a whole item that cannot be broken into multiple parts, for example, a house deed or collectible cards”
-  * “As you can see in the code, the ERC721 interface also inherits from the ERC165 standard.”
-  * “The ERC165 standard is known as the Standard Interface Detection, using which we can publish and detect all interfaces a smart contract implements”
-  * In the OpenZeppelin implementation of the ERC721 standard, there are two approval mechanisms: tokenApprovals and operatorApprovals
-    * tokenApprovals:
-      * mapping(uint256 => address) internal _tokenApprovals;
-      * This is a mapping from a token ID to an approved address.
-      * It allows a specific address to transfer the ownership of a specific token.
-      * It is used for one-time approvals and is cleared after the transfer is completed.
-    * operatorApprovals
-      * mapping(address => mapping(address => bool)) internal _operatorApprovals;
-      * This is a mapping from an owner address to an operator address to a boolean value.
-      * It allows an operator to manage (transfer or perform other operations) any tokens owned by the approved owner.
-      * This approval is persistent until explicitly revoked.
-  * “The transferFrom() function is a public function, used to transfer the given tokenId from the owner's account to the receiver's account. For this function to work, the approval must have been given previously by the owner to the address of the caller of this function.
-    * “require(_isApprovedOrOwner(msg.sender, tokenId));”
-  * “The safeTransferFrom() function is a public function that is used to safely transfer the NFT from the owner's account to the recipient account.”
-    * “safely transfer means that, when a recipient is a contract, you need to ensure that the recipient contract has callbacks registered to let the receiver contract get a notification when ERC721 token transfer is successful”
-    * “require(_checkOnERC721Received(from, to, tokenId, _data))”
-    * “it makes a call to the _checkOnERC721Received() internal function, which further calls the “callback functions (the onERC721Received() function on the contract receiving the token) in case the recipient of the NFT is a contract (not an Externally Owned Account (EOA)).”
-    * “You can pass on the function bytes data into the safeTransferFrom() function in the _data argument”
-      * “When this _data parameter is not empty, the further function call will be initiated from the receiver's onERC721Received() function”
-  * “contract ABC is ERC721, ERC721Enumerable, ERC721Metadata”
+# tokens
+* erc20
+    * “with the ERC20 token standard APIs, it is not possible to get notifications of another action being triggered when an ERC20 standard-specific token is received at the deployed contract”
+      * “The token transfers are received at the contract silently.”
+      * “The ERC223 standard provides the methods that will be called once the tokens are transferred”
+    * “In the OpenZeppelin's ERC20 standard implementation, the transfer() and transferFrom() functions also do not have a check for the contract address itself, such as require(to != address(this)). There is a reasoning behind this—to reduce the gas cost of the transaction, as there would be millions of transactions performed using these functions.”
+      * “if the tokens are transferred to the contract address itself, those tokens will be locked forever because the contract code does not have a way to take the tokens out of the contract.”
+      * “It is not recommended to change the ERC20 implementation and add the contract address check in it.”
+      * “However, the functions related to reclaiming tokens can be used in your ERC20 implementation”
+      * “This would enable the reclaiming of your contract-specific tokens, as well as other ERC20-specific tokens that were mistakenly sent to the contract”
+    * “The implementation of the approve() function that we looked at in the previous section is prone to front-running attacks.”
+      * “An attacker who initiates a transaction which is to be executed before a specific pending transaction that could benefit an attacker financially is called a front-running attack.”
+        * “On the Ethereum blockchain, the transaction gets executed based on the GasPrice someone is offering to process their transaction.”
+        * “anyone can read the transactions that are still pending and waiting to be executed in the transaction pool since Ethereum is a public blockchain”
+        * “An attacker would observe the transactions that are still pending in the transaction pool and trigger some transaction that could benefit them.”
+        * “Originally, Alice wanted Bob to get 1,500 tokens only. However, using the front-running attack, Bob ended up getting, in total, 2,500 tokens.”
+          * “For example, after calling the approve() function once, if you want to change it without being attacked using front-running, you can use the increaseApproval() or decreaseApproval() functions.”
+        * “To prevent front-running attacks, there are some techniques we can follow.”
+          * “You can use the following implementation of the approve() function, which ensures that, before updating the value, it should be set to zero”
+            * “require(_value == 0 || allowed[msg.sender][_spender] == 0);”
+    * “To transfer the tokens using the transferFrom() function, approver must have called the approve() function prior.”
+    * “if you are calling the transferFrom() function from within a Solidity contract, it is recommended to enclose the call with require() to ensure that the token transfer executed successfully and, in case of any transfer failure, the transaction should revert.”
+      * “require(ERC20.transferFrom(from, to, value));”
+    * “There are some advanced functions that were recently added in the ERC20 token implementations.”
+      * “However, these functions are not part of the ERC20 standard APIs”
+      * “These functions are just added to improve usage and reduce security issues and attacks”
+      * i“n the new OpenZeppelin implementation of ERC20 contracts, there are more functions such as _mint(), _burn(), and _burnFrom() that were also added”
+* erc721
+    * “ERC721 is a Non-Fungible Token (NFT) standard”
+      * “This standard is used in many cases where you want to transfer a whole item that cannot be broken into multiple parts, for example, a house deed or collectible cards”
+      * “As you can see in the code, the ERC721 interface also inherits from the ERC165 standard.”
+      * “The ERC165 standard is known as the Standard Interface Detection, using which we can publish and detect all interfaces a smart contract implements”
+      * In the OpenZeppelin implementation of the ERC721 standard, there are two approval mechanisms: tokenApprovals and operatorApprovals
+        * tokenApprovals:
+          * mapping(uint256 => address) internal _tokenApprovals;
+          * This is a mapping from a token ID to an approved address.
+          * It allows a specific address to transfer the ownership of a specific token.
+          * It is used for one-time approvals and is cleared after the transfer is completed.
+        * operatorApprovals
+          * mapping(address => mapping(address => bool)) internal _operatorApprovals;
+          * This is a mapping from an owner address to an operator address to a boolean value.
+          * It allows an operator to manage (transfer or perform other operations) any tokens owned by the approved owner.
+          * This approval is persistent until explicitly revoked.
+      * “The transferFrom() function is a public function, used to transfer the given tokenId from the owner's account to the receiver's account. For this function to work, the approval must have been given previously by the owner to the address of the caller of this function.
+        * “require(_isApprovedOrOwner(msg.sender, tokenId));”
+      * “The safeTransferFrom() function is a public function that is used to safely transfer the NFT from the owner's account to the recipient account.”
+        * “safely transfer means that, when a recipient is a contract, you need to ensure that the recipient contract has callbacks registered to let the receiver contract get a notification when ERC721 token transfer is successful”
+        * “require(_checkOnERC721Received(from, to, tokenId, _data))”
+        * “it makes a call to the _checkOnERC721Received() internal function, which further calls the “callback functions (the onERC721Received() function on the contract receiving the token) in case the recipient of the NFT is a contract (not an Externally Owned Account (EOA)).”
+        * “You can pass on the function bytes data into the safeTransferFrom() function in the _data argument”
+          * “When this _data parameter is not empty, the further function call will be initiated from the receiver's onERC721Received() function”
+      * “contract ABC is ERC721, ERC721Enumerable, ERC721Metadata”
+* erc1155
+
 * “ The following is an example of enclosing a token transfer call and an approve call within the require() function:”
   * “require(ERC20(tokenAddress).transferFrom(from, to, value));”
   * “OpenZeppelin provides the SafeERC20.sol contract to ensure the safety of these calls; it is helpful to protect the contract from unintended behavior.”
@@ -259,104 +495,7 @@
 * https://betterprogramming.pub/cryptokitties-smart-contract-breakdown-2c3c250d33f6
 * https://spectrum.ieee.org/cryptokitties
 
-# libs
-* just like contracts, but they are deployed only once and their code is reused in the calling contracts
-* it is helpful to think of a library as a singleton in the EVM
-    * piece of code that can be called from any contract without the need to deploy it again
-* `library` keyword helps to ensure that
-    * cannot have storage
-        * no non-constant state variables
-    * cannot hold ethers
-        * no fallback function
-        * no payable functions
-    * cannot inherit nor be inherited
-    * cannot be destroyed
-        * no `selfdestruct()` function since version 0.4.20
-* deploying common code as library will save gas as gas depends on the size of the contract too
-    * using a base contract instead of a library won’t save gas
-        * inheritance works by copying code
-* calls to the library functions use the `DELEGATECALL` opcode
-    * code of the library function is executed in the context of the calling contract
-        * storage of the calling contract is used and modified by the library
-* cannot destroy a deployed library
-* can be used to add member functions to data types
-    * example
-        ```
-        library MathLibrary {
-            function sqrt(uint x) internal pure returns (uint y) { ... }
-            }
-        }
-        ```
 
-        ```
-        pragma solidity ^0.8.0;
-
-        import "./MathLibrary.sol";
-
-        contract SquareRootCalculator {
-            using MathLibrary for uint;
-
-            function calculateSquareRoot(uint x) public pure returns (uint) {
-                return x.sqrt();
-            }
-        }
-        ```
-* if you cannot go stateless, ensure that you pay close attention to the layout of all your state variables
-    * example
-        * trusted lib
-            ```
-            pragma solidity 0.7.6;
-
-            contract TrustedLib {
-                uint num;
-
-                function doStuff(uint _num) public { // changes the first variable of the first slot
-                    num = _num;
-                }
-            }
-            ```
-        * vulnerable contract
-             ```
-             pragma solidity 0.7.6;
-
-             contract HackMe {
-                 address lib;
-                 address public owner;
-                 uint num;
-
-                 constructor(address _lib) {
-                     owner = msg.sender;
-                     lib = _lib;
-                 }
-
-                 function doStuff(uint _num) public { // changes the first variable of the first slot: lib address
-                     lib.delegatecall(abi.encodeWithSignature("doStuff(uint256)", _num));
-                 }
-             }
-             ```
-        * attacker
-            ```
-            contract Attacker {
-                address Lib;
-                address public owner;
-                uint someNumber;
-
-                HackMe hackMe;
-
-                constructor(address _hackMe) {
-                    hackMe = HackMe(_hackMe);
-                }
-
-                function attack() external {
-                    hackMe.doStuff(uint(address(this)));  // sets this as lib in hackMe; passing address in uint form not possible after 0.8.0
-                    hackMe.doStuff(1);                    // hackMe.doStuff --delegate--> this.doStuff ~ changes hackMe.owner
-                }
-
-                function doStuff(uint _num) public { // changes first variable of second slot: owner address
-                    owner = msg.sender;
-                }
-            }
-            ```
 
 
 
