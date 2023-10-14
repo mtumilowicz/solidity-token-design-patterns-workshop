@@ -24,6 +24,10 @@
     * https://kristaps.me/blog/solidity-eip-712-sign-ethers-js/
     * https://dev.to/fassko/what-are-meta-transactions-the-eip-712-standard-and-how-to-sign-a-message-with-metamask-4mil
     * https://medium.com/metamask/eip712-is-coming-what-to-expect-and-how-to-use-it-bb92fd1a7a26
+    * https://0xsomeone.medium.com/b002-solidity-ec-signature-pitfalls-b24a0f91aef4
+    * https://nfting.medium.com/what-is-a-replay-attack-23e39ebbb11a
+    * https://medium.com/coinmonks/what-the-heck-is-replay-protection-aae910f2a3cb
+    * https://medium.com/@MyPaoG/explaining-the-dao-exploit-for-beginners-in-solidity-80ee84f0d470
 
 * token burning
     * It is typically performed by the development team which can also buy back tokens and burn them
@@ -87,11 +91,11 @@
             * unpredictable gas costs
     * reentrancy attacks
         * problem: re-enter origin contract before the state changes are finalized
-            * example
+            * example (2016 dao hack)
                 ```
                 function withdraw(uint amount) public {
                      require(balanceOf[msg.sender] >= amount);
-                     msg.sender.call{value: amount}(""); // invokes fallback function in caller, than invokes withdraw again
+                     msg.sender.call{value: amount}(""); // invokes fallback function in caller, which in turns invokes withdraw again
                      balanceOf[msg.sender] -= amount;
                      Withdrawal(msg.sender, amount);
                 }
@@ -117,25 +121,32 @@
     * replay attack
         * problem
             * cross-chain signature replay
-                * most typical situation is when the contract does not include a chainId when generating a signature
-                * transaction signed by a key, that is valid on one Ethereum network/chain, is valid for all Ethereum chains
-                    * Bitcoin: addresses in testnet use a different prefix from addresses in mainnet
-                        * keys are different
                 * example
                     ```
                     function deposit() public payable { // reply transaction from testnet on the mainnet
                         balances[msg.sender] += msg.value;
                     }
                     ```
+                * usually happen during chain splits or hard forks
+                    * Ethereum: signed transaction is valid for all Ethereum chains
+                    * Bitcoin: addresses in testnet use a different prefix from addresses in mainnet
+                        * keys are different
+                * solution: use chainId when generating a signature
             * same-chain signature replay
-                * most typical situation is when the contract does not include a Nonce when generating a signature
                 * example
                     ```
                     function deposit() public payable { // attacker rebroadcasts the same transaction with the same parameters
                         balances[msg.sender] += msg.value;
                     }
                     ```
+                * solution: use nonce when generating a signature
         * solution
+            * two approaches
+                * strong replay protection
+                    * one of the forked chains will make it mandatory to change some information in the transaction for it to be valid over its network
+                * opt-in reply protection
+                    * users must make manual changes to the transaction to ensure that they won’t be replayed
+                    * example: Ethereum Classic (ETC) did not implement strong replay protection during the hard fork
             * EIP155
                 * called "simple replay attack protection"
                 * defines the chainID field in Ethereum transactions to prevent replay attacks
@@ -301,6 +312,10 @@
                             * it interprets v values of both 27 and 28 as equivalent
                                 * it only checks if v is greater than or equal to 27
                                 * signatures produced with both v = 27 and v = 28 will yield the same public key
+                            * it does not halt execution when invalid signatures are supplied
+                                * it simply returns the address 0x0
+                                    * zero address in most contracts has a special meaning (i.e. burn address)
+                                    * smart contract might incorrectly assume that the zero address is a valid signer
                             * use: OpenZeppelin’s ECDSA library
                         * used to derive the address of a sender based on the digital signature
                         * needs assembly
@@ -450,7 +465,7 @@
           * “When this _data parameter is not empty, the further function call will be initiated from the receiver's onERC721Received() function”
       * “contract ABC is ERC721, ERC721Enumerable, ERC721Metadata”
 * erc1155
-
+* openzeppelin
 * “ The following is an example of enclosing a token transfer call and an approve call within the require() function:”
   * “require(ERC20(tokenAddress).transferFrom(from, to, value));”
   * “OpenZeppelin provides the SafeERC20.sol contract to ensure the safety of these calls; it is helpful to protect the contract from unintended behavior.”
