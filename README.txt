@@ -631,6 +631,7 @@
                 * any change to the file itself will change the hashed address
     * adding
         * each node chooses which file to store
+            * long-term IPFS storage: Filecoin
     * pinning
         * act of saving data on a node
         * prevents important data from being deleted from your node when the clearing process happens
@@ -679,35 +680,37 @@
         * only peer allowed to commit entries to the log
         * required for other parts of ipfs-cluster functionality (initialization, monitoring)
 * blockchain
-    * An interesting point here is the distinction between storing data on the blockchain and storing hashes of data on the blockchain. On the Ethereum platform you pay a rather large fee for storing data in the associated state database, in order to minimize bloat of the state database (“blockchain bloat”). Thus it’s a common design pattern for larger pieces of data to store not the data itself but an IPFS hash of the data in the state database.
-    * If the blockchain with its associated state database is already represented in IPFS then the distinction between storing a hash on the blockchain and storing the data on the blockchain becomes somewhat blurred, since everything is stored in IPFS anyway, and the hash of the block only needs the hash of the state database. In this case if someone has stored an IPFS link in the blockchain we can seamlessly follow this link to access the data as if the data was stored in the blockchain itself.
-    * Metadata can be stored on IPFS to decentralize an NFT. Doing so prevents centralized control over it. If metadata IPFS files are pinned at least somewhere on an online computer they cannot get lost.
-        * For long-term IPFS storage check out Filecoin or Arweave.
-    * So, storing the data on IPFS and writing the hash to the blockchain is something like writing the data itself to the blockchain, but much cheaper.
-    * For example, a high-res image would be stored on a centralised server while only the link (i.e. https://www.domain.com/subdomain/imgLink) would be stored in the NFT.
-        * Those familiar with web2.0 architecture will be able to easily recognise that there is nothing stopping the image host from changing the image which the URL points to
-        * Decentralised storage technologies such as IPFS (InterPlanetary File System) aims to solve exactly this by enabling such data to be securely replicated across multiple nodes while minimising the risk of being censored or tampered with.
-    * For a (bad:)) centralized NFT it returns the metadata location in the form of
-      HTTP://centralizedserver.com/TokenID
-    * Sure, one could return something like
-      ipfs://contendidentifierhash/TokenID
-      * But as a friendly reminder, IPFS can only provide an immutable hierarchical file system structure that looks like a read/write file system but without the writing part.
-        * if all tokens and TokenIDs are set at the time of the smart contract deployment, this is a great way to decentralize
-    *  So why can´t the TokenID be a pointer itself to the metadata — an idea by Titusz Pan? We would then just add “ipfs://” in front… which is well possible….
-      TokenID=IPFScontentidentifierhash
-      * But first, we have to look how ipfs content identifier looks like. CID (=contentidentifierhashes) come coded to the base58
-    * example: We create a CID V1 by adding “cid-version=1 hash=blake2b-208”.
-        ```
-        $ ipfs add MetaDataIPFSToken.json cid-version=1 hash=blake2b-208
-        added bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a MetaDataIPFSToken.json
-        ```
-        Than convert it to hex “-b=base16”
-        ```
-        $ ipfs cid format -b=base16 bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a
-        f01559ae4021a99b0d373d7bc8a80504bad782367abe12c21373c83adc6bf6a7e
-        ```
-        Without the leading “f” this gives a wonderful token ID.
-        * constructor() public ERC1155("ipfs://f0{id}") {
+    * problem: on the Ethereum platform you pay a rather large fee for storing data in the associated state database
+        * minimizes bloat of the state database ("blockchain bloat")
+        * solution: store not the data itself but hash of the data
+            * distinction between storing a hash on the blockchain and storing the data on the blockchain becomes somewhat blurred
+            * example: store an IPFS link in the blockchain
+                * we can seamlessly follow this link to access the data as if the data was stored in the blockchain itself
+    * problem: centralized nft
+        * returns the metadata location in the form of: `HTTP://centralizedserver.com/TokenID`
+            * here is nothing stopping the image host from changing the image which the URL points to
+        * solution: IPFS
+            * problem: cannot set `ipfs://contendidentifierhash/TokenID`
+                * IPFS can only provide an immutable hierarchical file system structure
+                * requirement: all tokens and TokenIDs are set at the time of the smart contract deployment
+                * solution: TokenID as a pointer itself to the metadata
+                    * `TokenID=IPFScontentidentifierhash`
+                    * idea by Titusz Pan
+                    * we would then just add "ipfs://" in front
+                    * example
+                        ```
+                        $ ipfs add MetaDataIPFSToken.json cid-version=1 hash=blake2b-208
+                        added bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a MetaDataIPFSToken.json
+                        ```
+                        then convert it to hex “-b=base16”
+                        ```
+                        $ ipfs cid format -b=base16 bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a
+                        f01559ae4021a99b0d373d7bc8a80504bad782367abe12c21373c83adc6bf6a7e
+                        ```
+                        without f0 gives a token ID
+                        ```
+                        constructor() public ERC1155("ipfs://f0{id}") { // "f0" is not part of the CID, but rather a representation of the format being used (base16)
+                        ```
 
 ## tokens
 * standards play a pivotal role in ensuring interoperability and compatibility among different smart contracts and decentralized applications (DApps)
