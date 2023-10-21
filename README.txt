@@ -1,6 +1,14 @@
 # solidity-nft-workshops
 
 * references
+    * https://www.oreilly.com/library/view/hands-on-smart-contract/9781492045250/
+    * https://www.amazon.com/Solidity-Programming-Essentials-building-contracts/dp/1803231181
+    * https://www.amazon.com/Beginning-Ethereum-Smart-Contracts-Programming/dp/1484292707
+    * https://www.springerprofessional.de/en/ethereum-smart-contract-development-in-solidity/18334966
+    * https://www.manning.com/books/blockchain-in-action
+    * https://www.packtpub.com/product/mastering-blockchain-programming-with-solidity/9781839218262
+    * https://www.algoexpert.io/blockchain/index
+    * https://chat.openai.com
     * https://www.linkedin.com/pulse/what-token-burning-how-does-work-azhar-siddiqui
     * https://medium.com/cryptronics/ethereum-smart-contract-security-73b0ede73fa8
     * https://medium.com/immunefi/the-ultimate-guide-to-reentrancy-19526f105ac
@@ -93,6 +101,12 @@
     * https://medium.com/virtuslab/the-complete-beginners-guide-to-ipfs-9713a6f59193
     * https://medium.com/@akshay_111meher/how-ipfs-works-545e1c890437
     * https://ipfs.io/ipfs/QmRU1jJ1kNd9fTzjFwM4X9YtA2wfXN1W2eFK7mgTMJ8xgK
+    * https://medium.com/coinmonks/the-technology-behind-ipfs-and-what-can-ipfs-do-c7009fe42bab
+    * https://itsromiljain.medium.com/ipfs-the-permanent-distributed-web-7a0d3ede10af
+    * https://itsromiljain.medium.com/ipfs-the-permanent-distributed-web-continues-ffbe1919bb94
+    * https://medium.com/pinata/what-is-an-ipfs-pinning-service-f6ed4cd7e475
+    * https://medium.com/hackernoon/ipfs-and-merkle-forest-a6b7f15f3537
+    * https://medium.com/hackernoon/a-beginners-guide-to-ipfs-20673fedd3f
 
 # best practices
     * don't use plain secret on-chain
@@ -473,6 +487,29 @@
     * ode coverage tool specifically designed for Solidity smart contracts
 
 # ipfs
+* Self-certifying File System
+    * Each node on the network has a set of public keys, private keys and a node ID which is the hash of its public key. Nodes can therefore use their private keys to ‘sign’ any data objects they publish, and the authenticity of this data can be verified using the sender’s public key.
+* A merkle DAG is basically a data structure where hashes are used to reference data blocks and objects in a DAG.
+    * This creates several useful features: all content on IPFS can be uniquely identified, since each data block has a unique hash.
+* HTTP is great for loading websites but it wasn’t designed for the transfer of large amounts data (like audio and video files)
+    * These constraints possibly enabled the emergence and mainstream success of alternative filesharing systems like Napster (music) and BitTorrent (movies and pretty much anything).
+* ipfs-cluster peers coordinate their state (the list of CIDs which are pinned, their peer allocations and replication factor) using a consensus algorithm called Raft
+    * Raft is used to commit log entries to a “distributed log” which every peer follows. Every “Pin” and “Unpin” requests are log entries in that log.
+    * When a peer receives a log “Pin” operation, it updates its local copy of the shared state to indicate that the CID is now pinned.
+    * In order to work, Raft elects a cluster “Leader”, which is the only peer allowed to commit entries to the log. Thus, a Leader election can only succeed if at least half of the nodes are online. Log entries, and other parts of ipfs-cluster functionality (initialization, monitoring), can only happen when a Leader exists.
+* (What is Merkle DAG? It is a Merkle directed acyclic graph. It is similar to Merkle tree. However, a Merkle DAG need not be balanced and its non-leaf nodes are allowed to contain data.)
+* When an IPFS node retrieves data from the network it keeps a local cache of that data for future usage, taking up space on that particular IPFS node
+    * IPFS nodes frequently clear this cache out in order to make room for new content.
+    * But, what happens if you want to make sure that certain content will never be deleted?
+        * The act of saving data on an IPFS node is often referred to as “pinning”
+        * When you “pin” data on an IPFS node, you are telling that node that the data is important and it should be saved. Pinning prevents important data from being deleted from your node when the clearing process happens. However, you can only control and pin data on your node(s). You can not force other nodes on the IPFS network to pin your content for you. So, to guarantee your content stays pinned, you have to run your own IPFS nodes.
+* Now we are going to pin the file we added to IPFS. As the file exists on our local machine, but by pinning the file, other nodes on the IPFS network know they can access the file from our machine.
+* It maintains a HTTP -> IPFS gateway, and we can access any one of our files from their website, where they have mounted the IPFS system on their HTTP URL: https://ipfs.io/ipfs/[yourHash].
+    * Run below link to check file hello.txt, fully loaded on IPFS
+        * https://ipfs.io/ipfs/QmWATWQ7fVPP2EFGu71UkfnqhYXDYH566qy47CnJDgvs8u
+        * https://gateway.ipfs.io/ipfs/QmWATWQ7fVPP2EFGu71UkfnqhYXDYH566qy47CnJDgvs8u
+* Unlike HTTP protocol which refers objects (text files, pics, videos) by which server they are stored on, IPFS refers everything by the hash on the file.
+    * Which means it creates file hash as per the content in the file
 * Is there any access-control for data?
   Ans: No. Anyone can access your data provided that they know the hash. To avoid this, you can use combination of symmetric and asymmetric encryption.
 * IPFS stands for Interplanetary File System
@@ -499,6 +536,7 @@
     * The second is that content is linked via Directed Acyclic Graphs (DAGs)
     * And the third is that the content discovery system is facilitated via Distributed Hash Tables (DHTs).
         * The information about which node stores what blocks is organized as a distributed hash table, which is split across the nodes just like data itself.
+        * Small values (equal to or less than 1KB) are stored directly on the DHT. For values larger, the DHT stores references, which are the NodeIds of peers who can serve the block.
 * peer-to-peer hypermedia protocol
 * Sounds Great! Why Are People Complaining About Lost Files Then?
   Because each node chooses which file to store.
@@ -518,6 +556,15 @@
       the online storing nodes begin to share the partitions they store.
     * As a result, data is being shared
       from more than one source and we are not exhausting a single server
+    * A notable difference is that where in BitTorrent each file has a separate swarm of peers (forming a P2P network with each other) where IPFS is one big swarm of peers for all data.
+* When peers connect, they exchange which blocks they have (have_list) and which blocks they are looking for (want_list)
+* BitSwap Strategy:
+  - this strategy is based on previous data exchanges between these two peers
+  - when peers exchange blocks they keep track of the amount of data they share (builds credit) and the amount of data they receive (builds debt)
+  - this accounting between two peers is kept track of in the BitSwap Ledger
+  - if a peer has credit (shared more than received), our node will send the requested block
+  - if a peer has debt, our node will share or not share, depending on a deterministic function where the chance of sharing becomes smaller when the debt is bigger
+  - a data exchange always starts with the exchange of the ledger, if it is not identical our node disconnects
 * The idea is that if in your browser you want to access a particular page then IPFS will ask the entire network “does anyone have this file that corresponds to this hash?” and a node on IPFS that does can return the file allowing you to access it.
     * This is the practice of saying instead of creating an identifier that addresses things by location, we’re going to address it by some representation of the content itself.
 * This means that the content is going to determine the address.
@@ -533,6 +580,25 @@
         Hash — the hash of the linked IPFS object.
         Size — the cumulative size of the linked IPFS object, including following its links.
   * IPFS objects are normally referred to by their Base58 encoded hash
+  * example
+    ```
+    $ ipfs object get QmarHSr9aSNaPSR6G9KFPbuLV9aEqJfTk1y9B8pdwqK4Rq
+    {
+      "Links": [
+        {
+          "Name": "AnotherName",
+          "Hash": "QmVtYjNij3KeyGmcgg7yVXWskLaBtov3UYL9pgcGK3MCWu",
+          "Size": 18
+        },
+        {
+          "Name": "SomeName",
+          "Hash": "QmbUSy8HCn8J4TMDRRdxCbK2uCCtkQyZtY6XYv3y7kLgDC",
+          "Size": 58
+        }
+      ],
+      "Data": "Hello World!"
+    }
+    ```
 * The data and named links gives the collection of IPFS objects the structure of a Merkle DAG — DAG meaning Directed Acyclic Graph, and Merkle to signify that this is a cryptographically authenticated data structure that uses cryptographic hashes to address content.
 * Note that the file name is not part of the IPFS object, so two files with different names and the same content will have the same IPFS object representation and hence the same hash
 * A small file (< 256 kB) is represented by an IPFS object with data being the file contents (plus a small header and footer) and no links, i.e. the links array is empty.
