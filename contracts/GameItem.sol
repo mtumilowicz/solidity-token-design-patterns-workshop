@@ -10,21 +10,15 @@ contract GameItem is ERC721URIStorage, ERC721Enumerable, AccessControl {
 
     bytes32 public immutable ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public immutable MINER_ROLE = keccak256("MINER_ROLE");
+    string private _baseTokenURI;
 
-    constructor() ERC721("GameItem", "ITM") {
+    // https://gateway.pinata.cloud/ipfs/QmXLdCoTPVZ8Vf5PrEZR1awPKR8PvxmyEakaR5ummPCPnh/{id}.json>
+    // MichiNFT, MIC, ipfs://QmZbWNKJPAjxXuNFSEaksCJVd1M6DaKQViJBYPK2BdpDEP/
+    constructor(string memory name, string memory symbol, string memory baseTokenURI) ERC721(name, symbol) {
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _grantRole(ADMIN_ROLE, _msgSender());
         _grantRole(MINER_ROLE, _msgSender());
-    }
-
-    modifier onlyAdmin() {
-        require(hasRole(ADMIN_ROLE, _msgSender()), "Must have admin role");
-        _;
-    }
-
-    modifier onlyMiner() {
-        require(hasRole(MINER_ROLE, _msgSender()), "Must have miner role");
-        _;
+        _baseTokenURI = baseTokenURI;
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -48,14 +42,21 @@ contract GameItem is ERC721URIStorage, ERC721Enumerable, AccessControl {
         return ERC721URIStorage.tokenURI(tokenId);
     }
 
-    function safeMine(address to, string memory uri) external onlyMiner {
+    function safeMine(address to) external onlyRole(MINER_ROLE) {
         uint256 tokenId = totalSupply() + 1;
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
     }
 
-    function burn(uint256 tokenId) external onlyAdmin {
+    function burn(uint256 tokenId) external onlyRole(ADMIN_ROLE) {
         _burn(tokenId);
+    }
+
+    function _baseURI() internal view virtual override returns (string memory) {
+        return _baseTokenURI;
+    }
+
+    function setBaseURI(string memory newBaseURI) external onlyRole(ADMIN_ROLE) {
+        _baseTokenURI = newBaseURI;
     }
 
 }

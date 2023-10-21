@@ -28,39 +28,71 @@
     * https://nfting.medium.com/what-is-a-replay-attack-23e39ebbb11a
     * https://medium.com/coinmonks/what-the-heck-is-replay-protection-aae910f2a3cb
     * https://medium.com/@MyPaoG/explaining-the-dao-exploit-for-beginners-in-solidity-80ee84f0d470
-
-* token burning
-    * It is typically performed by the development team which can also buy back tokens and burn them
-* https://example.com/nft/1
-    ```
-    {
-      "name": "One Ring to Rule Them All",
-      "description": "The One Ring, forged in the fires of Mount Doom, grants immense power to its bearer.",
-      "image": "https://example.com/one_ring.jpg",
-      "attributes": [
-        {
-          "trait_type": "Type",
-          "value": "Artifact"
-        },
-        {
-          "trait_type": "Rarity",
-          "value": "Legendary"
-        },
-        {
-          "trait_type": "Power",
-          "value": "Dominion over all other rings"
-        },
-        {
-          "trait_type": "Owner",
-          "value": "Sauron"
-        }
-      ],
-      "external_url": "https://example.com/one_ring",
-      "franchise": "The Lord of the Rings",
-      "lore": "Forged by the Dark Lord Sauron to control the other Rings of Power, the One Ring is a malevolent artifact of great evil."
-    }
-
-    ```
+    * https://medium.com/coinmonks/understanding-and-preventing-short-address-attacks-in-solidity-smart-contracts-3d46a4af9a15
+    * https://www.reddit.com/r/ethereum/comments/6r9nhj/cant_understand_the_erc20_short_address_attack/
+    * https://medium.com/huzzle/ico-smart-contract-vulnerability-short-address-attack-31ac9177eb6b
+    * https://medium.com/coinmonks/what-is-an-nft-and-how-does-it-works-1f85a5734f84
+    * https://johankristensson.medium.com/explaining-nft-technology-simplifying-the-basics-89aa539644ee
+    * https://medium.com/coinmonks/what-are-nfts-non-fungible-tokens-explained-f3a3d8d18ed7
+    * https://webdevelopmentkl.medium.com/nfts-explained-everything-you-need-to-know-323b6fa740d5
+    * https://medium.com/analytics-vidhya/what-is-nft-characteristics-and-use-cases-explained-ad7dc77f350f
+    * https://medium.com/@BryanBulte/nft-explained-simply-f4daee993096
+    * https://medium.com/coinmonks/nft-smart-contract-development-543d712003ef
+    * https://medium.com/@dropspace/nft-smart-contract-understanding-the-backbone-of-digital-collectibles-a1f91538c3be
+    * https://thebojda.medium.com/code-a-minimalistic-nft-smart-contract-in-solidity-on-ethereum-a-how-to-guide-hacker-noon-5cb72f0891c
+    * https://medium.com/@kaishinaw/creating-truly-decentralised-nfts-a-comprehensive-guide-to-erc721-ipfs-b2ae60e312b6
+    * https://medium.com/@JaysNotebook/learning-openzeppelin-everything-you-need-to-know-5152a0ad8c4
+    * https://medium.com/@ethdapp/using-the-openzeppelin-escrow-library-6384f22caa99
+    * https://stermi.medium.com/lets-play-ethernaut-ctf-learning-solidity-security-while-playing-1678bd6db3c4
+    * https://www.blockchain-council.org/ethereum/beginners-guide-what-is-erc20/
+    * https://ethereum.org/en/developers/docs/standards/tokens/erc-20/
+    * https://www.ledger.com/academy/what-are-erc-tokens-and-why-do-we-use-them
+    * https://medium.com/@ajaotosinserah/introduction-to-erc20-token-ad30b7422db9
+    * https://medium.com/coinmonks/what-are-erc-20-tokens-afcccbc53962
+    * https://medium.com/theblockchainhub/erc20-introduction-part-1-e8c2062aed0f
+    * https://medium.com/coinmonks/solidity-lesson-28-understanding-the-erc-20-token-928758f053e1
+    * https://medium.com/@eiki1212/what-is-erc-20-explanation-of-details-eacf9f288f8b
+    * https://medium.com/@ankesh27/erc20-erc721-erc1155-token-standards-explained-f4d240a9c084
+    * https://medium.com/geekculture/code-your-own-erc-20-token-1678d9b381da
+    * https://medium.com/coinmonks/introduction-to-token-standards-for-ethereum-part-3-extensions-foundations-for-the-erc20-721-22bb727f072c
+    * https://medium.com/@lauraguy/what-is-an-erc20-token-d7320369bf76
+    * https://medium.com/hackernoon/the-innards-of-an-erc20-token-587c29e9b8a1
+    * https://medium.com/@danielque/what-we-learned-from-auditing-the-top-20-erc20-token-contracts-7526ef3b6fb1
+    * https://medium.com/@jgm.orinoco/understanding-erc-20-token-contracts-a809a7310aa5
+    * https://vitto.cc/how-to-create-and-deploy-an-erc20-token-in-20-minutes/
+    * https://medium.com/coinmonks/my-first-erc20-token-7d5d16632818
+    * https://medium.com/@infuyIT/understanding-erc-standards-a-guide-to-different-types-of-blockchain-tokens-e7991e4ecd61
+    * https://www.blockchain-council.org/ethereum/erc20-vs-erc721/
+    * https://medium.com/quick-programming/what-is-erc165-and-why-you-should-use-it-d0641a2f29e5
+    * https://medium.com/@chiqing/ethereum-standard-erc165-explained-63b54ca0d273
+    * https://ethereum.stackexchange.com/questions/83561/why-use-the-erc165-standard
+    * https://eips.ethereum.org/EIPS/eip-165
+    * https://docs.openzeppelin.com/contracts/
+    * https://techjd.medium.com/what-is-supportsinterface-understanding-erc165-503b40b942a6
+    * https://ethereum.stackexchange.com/questions/44880/erc-165-query-on-erc-721-implementation
+    * https://www.quicknode.com/guides/ethereum-development/nfts/how-to-create-and-deploy-an-erc-1155-nft#:~:text=What%20is%20ERC1155%3F,were%20required%20to%20achieve%20this.
+    * https://blog.thirdweb.com/what-is-erc-1155-nft/
+    * https://docs.openzeppelin.com/contracts/5.x/erc1155
+    * https://decrypt.co/resources/what-is-erc-1155-ethereums-flexible-token-standard
+    * https://ethereum.org/en/developers/docs/standards/tokens/erc-1155/
+    * https://www.linkedin.com/pulse/erc-1155-demystified-deep-dive-versatile-token-asset-mukul-tripathi/
+    * https://moralis.io/erc-1155-nfts-what-is-the-erc-1155-standard/
+    * https://limechain.tech/blog/erc-721-vs-erc-1155-ethereum-token-standards/
+    * https://www.leewayhertz.com/erc-20-vs-erc-721-vs-erc-1155/
+    * https://mightyblock.co/blog/news/how-to-build-and-use-erc-1155-tokens/
+    * https://medium.com/@konradmgnat/what-is-the-erc1155-token-and-when-to-use-it-fc53b5d001ca
+    * https://medium.com/codex/token-standards-erc-20-vs-erc-721-vs-erc-1155-2e4a09dc0f8a
+    * https://medium.com/envienta-open-source-everything/erc-1155-non-fungible-tokens-on-steroids-71aab96fa674
+    * https://pancy.medium.com/building-event-tickets-with-erc-1155-contract-1c427d89a77d
+    * https://soenkeba.medium.com/truly-decentralized-nfts-by-erc-1155-b9be28db2aae
+    * https://medium.com/@Consensys/an-introduction-to-ipfs-9bba4860abd0#:~:text=At%20its%20core%2C%20IPFS%20is,also%20a%20distributed%20file%20system.
+    * https://whatdoesthequantsay.com/2015/09/13/ipfs-introduction-by-example/
+    * https://medium.com/geekculture/what-is-ipfs-the-inter-planetary-file-system-explained-40744a7ae95a
+    * https://medium.com/aleph-im/ipfs-explained-in-2min-24e10afdb191
+    * https://medium.com/@sjarancio/ipfs-what-it-is-how-it-works-and-why-its-needed-49b75d8e857b
+    * https://medium.com/virtuslab/the-complete-beginners-guide-to-ipfs-9713a6f59193
+    * https://medium.com/@akshay_111meher/how-ipfs-works-545e1c890437
+    * https://ipfs.io/ipfs/QmRU1jJ1kNd9fTzjFwM4X9YtA2wfXN1W2eFK7mgTMJ8xgK
 
 # best practices
     * don't use plain secret on-chain
@@ -383,6 +415,30 @@
                             * relayer = service responsible for submitting transactions on behalf of users
                         * users sign a request (off-chain) for a specific action they want to perform on the blockchain
                             * includes information like the target contract, function to call, and any required parameters
+    * short address attack
+        * equivalent of minor SQL injection bug
+        * problem: leading zeros is taken from the amount, and given to the shortened address
+            * * means you've multiplied your amount by 1<<8 or 256
+                * after the exchange has checked your balance on their internal ledger
+            * reason: EVM pads all input data with 0s
+            * example
+                1. user B's address: 0xbbbbbb00
+                1. user A's balance: 512 tokens
+                1. A inputs B's address as 0xbbbbbb
+                1. site (incorrectly) interprets this as a valid address and constructs transaction
+                    * selector: 0x01020304
+                    * transaction: 0x01020304bbbbbbbb00000001
+                1. if we slice that back up into a 4-byte signature and 2 4-byte words
+                    * ['0x01020304', '0xbbbbbb00', '0x000001??']
+                1. any index into the transaction data that hasn't been provided returns 0s
+                    * trailing zeros do not change the actual address
+                        * `0x1234...5670` and `0x1234...567000` represent the same address
+                1. final argument being interpreted by the EVM as 0x00000100 = 256
+                    * 256
+                1. given that 256 is still less than 512 (your comment), the transaction succeeds
+            * most vulnerable to this were large, shared wallets
+                * example: exchange hot wallets
+        * solution: smart contract must validate the length of an address input
     * manipulating contract balance
         * problem: ether can be sent forcibly to a contract
             * if contract has some decision logic using `address(this).balance` - attacked can influence it
@@ -391,6 +447,10 @@
                 selfdestruct(addressOfAttackedContract)
                 ```
         * solution: there is no possible way to prevent forceful ether sending from happening
+    * Ethernaut game
+        * Web3/Solidity based war game created by OpenZeppelin
+        * each level is a smart contract that needs to be ‘hacked’
+        * solutions: https://stermi.medium.com/lets-play-ethernaut-ctf-learning-solidity-security-while-playing-1678bd6db3c4
 
 # tools
 * infura
@@ -412,8 +472,192 @@
 * solidity-coverage
     * ode coverage tool specifically designed for Solidity smart contracts
 
+# ipfs
+* Is there any access-control for data?
+  Ans: No. Anyone can access your data provided that they know the hash. To avoid this, you can use combination of symmetric and asymmetric encryption.
+* IPFS stands for Interplanetary File System
+    * Suppose humanity has colonises Mar and the first person on Mars tries to access internet services from Earth. It would approximately take 1 hour for him to access a news website. What if another person tries? He ends up taking another 1 hour and so on.
+      But IFPS is used, the second person on Mars shall be able to retrieve the content from the first person who came on Mars instantly. From there onwards data can spread like a wildfire on Mars.
+* acts as a decentralized source of data
+    * There is a thin line that separates distributed and decentralized data source. Distributed means that the processing is shared across multiple nodes, but the decisions may still be centralized and use complete system knowledge. Decentralized means that there is no single point where the decision is made. Every node makes a decision for it’s own behaviour and the resulting system behaviour is the aggregate response.
+* https://ipfs.github.io/public-gateway-checker/
+    * https://gateway.pinata.cloud/ipfs/QmXLdCoTPVZ8Vf5PrEZR1awPKR8PvxmyEakaR5ummPCPnh
+* The way things currently work is if you want to download a photo from the internet, you tell the computer exactly where to find the photo.
+    * The location of the photo is the IP address or the domain name
+        * This is called “location based addressing.”
+        * So if you tell the computer where to get the information but that location isn’t accessible (the server is down), you won’t get the photo
+        * When that happens there is a high probability that someone else out there has downloaded that picture before and still has a copy of it, yet your computer won’t be able to grab it from that other person.
+    * To fix this, IPFS moves from “location based addressing” to “content based addressing.”
+        * Instead of saying where to find a resource, you just say what it is you want
+        * Since IPFS uses content based addressing, once something is added it can’t be changed
+* Now you might be thinking, if you are retrieving these files from peer nodes and not some trusted centralized server, then how can you be sure that the file you requested hasn’t been tampered with?
+    * Since we are using a hash to request the file, you can verify what you received.
+    * Upon receiving a file, you can check if the hash of the file received matches the hash of the file requested
+* When using HTTP, files are downloaded from one server at a time. A peer-to-peer system like IPFS retrieves pieces of files from multiple nodes at once which enables bandwidth savings of up to 60% for things like videos. This makes it possible to efficiently distribute high volumes of data without duplication of files.
+* There are three main principles key to understanding IPFS
+    * The first is the unique identification via content addressing, which means IPFS knows how to find what you’re looking for by using the content’s unique address rather than its location.
+    * The second is that content is linked via Directed Acyclic Graphs (DAGs)
+    * And the third is that the content discovery system is facilitated via Distributed Hash Tables (DHTs).
+        * The information about which node stores what blocks is organized as a distributed hash table, which is split across the nodes just like data itself.
+* peer-to-peer hypermedia protocol
+* Sounds Great! Why Are People Complaining About Lost Files Then?
+  Because each node chooses which file to store.
+* in the IPFS lingo, storing something that’s available is called “pinning”
+* IPFS is duplication proof: Data is chunked and then stored and then hashed when added to the network, allowing duplicate data to map to the same nodes, and thus only one entry is created. Adding a new file to the network will take less storage as the network gets larger, assuming the file is relatively similar to others in the network.
+* IPFS is essentially a P2P system for retrieving and sharing IPFS objects.
+* IPFS began as an effort by Juan Benet to build a system that is very fast at moving around versioned scientific data. Versioning gives you the ability to track how states of software change over time (think Git).
+* IPFS has since become thought of as the The Distributed, Permanent Web
+* “IPFS is a distributed file system that seeks to connect all computing devices with the same system of files
+* IPFS is actually more similar to a single bittorrent swarm exchanging git objects
+    * BitTorrent is a successful and widely implemented protocol used to share large data
+      files in a distributed manner. It is best known for digital video sharing such as TV shows,
+      movies, video clips, ...etc.
+    * The protocol partitions such large data files into segments that are
+      distributed over different nodes of a peer-to-peer network.
+    * When a user requests a certain file,
+      the online storing nodes begin to share the partitions they store.
+    * As a result, data is being shared
+      from more than one source and we are not exhausting a single server
+* The idea is that if in your browser you want to access a particular page then IPFS will ask the entire network “does anyone have this file that corresponds to this hash?” and a node on IPFS that does can return the file allowing you to access it.
+    * This is the practice of saying instead of creating an identifier that addresses things by location, we’re going to address it by some representation of the content itself.
+* This means that the content is going to determine the address.
+    * The mechanism is to take a file, hash it cryptographically so you end up with a very small and secure representation of the file which ensures that someone can not just come up with another file that has the same hash and use that as the address
+    * The address of a file in IPFS usually starts with a hash that identifies some root object and then a path walking down
+        * Instead of a server, you are talking to a specific object and then you are looking at a path within that object.
+* IPFS is essentially a P2P system for retrieving and sharing IPFS objects
+* An IPFS object is a data structure with two fields:
+  Data — a blob of unstructured binary data of size < 256 kB.
+  Links — an array of Link structures. These are links to other IPFS objects.
+    * A Link structure has three data fields:
+        Name — the name of the Link.
+        Hash — the hash of the linked IPFS object.
+        Size — the cumulative size of the linked IPFS object, including following its links.
+  * IPFS objects are normally referred to by their Base58 encoded hash
+* The data and named links gives the collection of IPFS objects the structure of a Merkle DAG — DAG meaning Directed Acyclic Graph, and Merkle to signify that this is a cryptographically authenticated data structure that uses cryptographic hashes to address content.
+* Note that the file name is not part of the IPFS object, so two files with different names and the same content will have the same IPFS object representation and hence the same hash
+* A small file (< 256 kB) is represented by an IPFS object with data being the file contents (plus a small header and footer) and no links, i.e. the links array is empty.
+* A large file (> 256 kB) is represented by a list of links to file chunks that are < 256 kB, and only minimal Data specifying that this object represents a large file.
+* A directory is represented by a list of links to IPFS objects representing files or other directories.
+* IPFS can represent the data structures used by Git to allow for versioned file systems
+* An interesting point here is the distinction between storing data on the blockchain and storing hashes of data on the blockchain. On the Ethereum platform you pay a rather large fee for storing data in the associated state database, in order to minimize bloat of the state database (“blockchain bloat”). Thus it’s a common design pattern for larger pieces of data to store not the data itself but an IPFS hash of the data in the state database.
+* If the blockchain with its associated state database is already represented in IPFS then the distinction between storing a hash on the blockchain and storing the data on the blockchain becomes somewhat blurred, since everything is stored in IPFS anyway, and the hash of the block only needs the hash of the state database. In this case if someone has stored an IPFS link in the blockchain we can seamlessly follow this link to access the data as if the data was stored in the blockchain itself.
+* For a (bad:)) centralized NFT it returns the metadata location in the form of
+  HTTP://centralizedserver.com/TokenID
+* Sure, one could return something like
+  ipfs://contendidentifierhash/TokenID
+  * But as a friendly reminder, IPFS can only provide an immutable hierarchical file system structure that looks like a read/write file system but without the writing part.
+    * if all tokens and TokenIDs are set at the time of the smart contract deployment, this is a great way to decentralize
+*  So why can´t the TokenID be a pointer itself to the metadata — an idea by Titusz Pan? We would then just add “ipfs://” in front… which is well possible….
+  TokenID=IPFScontentidentifierhash
+  * But first, we have to look how ipfs content identifier looks like. CID (=contentidentifierhashes) come coded to the base58
+* We create a CID V1 by adding “cid-version=1 hash=blake2b-208”.
+    ```
+    $ ipfs add MetaDataIPFSToken.json cid-version=1 hash=blake2b-208
+    added bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a MetaDataIPFSToken.json
+    ```
+    Than convert it to hex “-b=base16”
+    ```
+    $ ipfs cid format -b=base16 bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a
+    f01559ae4021a99b0d373d7bc8a80504bad782367abe12c21373c83adc6bf6a7e
+    ```
+    Without the leading “f” this gives a wonderful token ID.
+    * constructor() public ERC1155("ipfs://f0{id}") {
+* Metadata can be stored on IPFS to decentralize an NFT. Doing so prevents centralized control over it. If metadata IPFS files are pinned at least somewhere on an online computer they cannot get lost.
+    * For long-term IPFS storage check out Filecoin or Arweave.
+* The second reason is that IPFS is immutable
+* The content cannot be changed, because if it changes the IPFS hash would also change.
+* So, storing the data on IPFS and writing the hash to the blockchain is something like writing the data itself to the blockchain, but much cheaper.
+* For example, a high-res image would be stored on a centralised server while only the link (i.e. https://www.domain.com/subdomain/imgLink) would be stored in the NFT.
+    * Those familiar with web2.0 architecture will be able to easily recognise that there is nothing stopping the image host from changing the image which the URL points to
+    * Decentralised storage technologies such as IPFS (InterPlanetary File System) aims to solve exactly this by enabling such data to be securely replicated across multiple nodes while minimising the risk of being censored or tampered with.
+* Instead of addresses which are based on the location of a file, IPFS redefines the address based on the file content.
+    * As any change to the file itself will change the hashed address, there are less trust assumptions when navigating to an address.
+    * Users can always compute the hash themselves to verify authenticity.
+    * If some data forms part of multiple datasets, each dataset only needs to link to one version of the data.
+        * Consequently, nobody has to store the entire dataset as links can be used to pull sections of data from across the network.
+
+
 # tokens
+* standards play a pivotal role in ensuring interoperability and compatibility among different smart contracts and decentralized applications (DApps)
+* Though many think of Ethereum contracts as fully decentralized, nearly half of the top 20 projects can have their token transfers completely frozen by an owner (a single key or a multisig contract).
+    * Pausing can be valuable for future upgrades, swaps, and disaster mitigation but also leads to new risks.
+* Unverified code
+    * The contract hosted in their GitHub was reviewed instead, but without verification there’s no way to guarantee it matches the code in the blockchain (and we tried a number of combinations).
+    * We opened a GitHub issue (which you should upvote) requesting them to verify their contract with Etherscan. In general, we highly recommend posting your code on Etherscan (not just Github) as it:
+      Makes it easy for other to build on top of your contract,
+      Ensures that many eyes can look at your contract (and not publishing — i.e., security by obscurity — is a poor method to ensure security).
+* The zero race condition approval attack is can occur when you change your approve amount to a given contract. For example, you want to reduce the amount approved from 1 ETH to 0.5 ETH. The approved contract can race to transfer the money you initially approved (the 1 ETH) and then also spend the money you just approved (0.5 ETH), rather than being restricted to the updated value.
+* To get your a token listed on an exchange, the exchange has to write custom code so that they can talk to the given contract and allow people to trade the respective tokens. The same thing goes for wallet providers.
+    * Supporting hundreds of tokens can therefore be a very complex and time-consuming process for exchanges and wallet providers. Luckily for them, and for all of crypto, the blockchain community proposed the standard called ERC20.
+* In blockchain technology, a coin is a digital asset which is native to its blockchain. Unlike coins, which directly represent a proposed medium of exchange, crypto tokens are a representation of an asset.
+* A Token is a Smart Contract representing digital assets that can have value and can be sent and received.
+* Some Examples of ERC20, ERC721, and ERC1155
+    ERC20: BNB, USDT, Chainlink, Matic, etc.
+  ERC721: CryptoPunts, BAYC
+  ERC1155:Gods Unchained, The Sandbox
+* Tokens can represent virtually anything in Ethereum:
+    * reputation points in an online platform
+    * skills of a character in a game
+    * lottery tickets
+    * financial assets like a share in a company
+    * a fiat currency like USD
+    * an ounce of gold
+* As ERC20 (fungible) tokens, NFT (non-fungible tokens) are also simple “databases” on the blockchain.
+    * While an ERC20 token contract stores balances of Ethereum addresses, the NFT contract stores unique ID -> Ethereum address assignments.
+* In the Blockchain ecosystem, any asset that is digitally transferable between two people is called a token
+* What is fungibility?
+    * Fungibility means that the individual units of an asset are interchangeable and essentially indistinguishable from one another.
+    * A currency is a classic example of a fungible asset. $50 is always $50, regardless of the serial number of the fifty dollar banknote in question.
+      On the contrary, a work of art is a so-called non-fungible asset. A Picasso painting is not the same as a Van Gogh painting, they are two totally different, discernible works that cannot be interchanged.
+* OpenZeppelin
+    * is an open-source library of protocols, templates, & utilities for smart contract development
+    * includes implementations for token standards, flexible role-based permissioning schemes, & reusable components
+    * OpenZeppelin library offers implementations for ERC20 , ERC721, & ERC1155
+* The ability for any developer to release their digital asset without the need for a separate blockchain has become a turning point in the history of cryptocurrencies.
+* Bitcoin established the paradigm for other crypto projects: in order to issue any digital currency, a separate blockchain must be launched.
+  This rule has been broken by Ethereum. Smart contacts enabled you to create a token and assign it unique useful functions within your own application
+* Prior to ERC-20, however, there was a problem with token compatibility because each of them had a unique smart contract.
+    * To put it another way, in order for the exchange or wallet to support the token, the creators had to write new code each time.
+    * As a result, supporting an increasing number of tokens became increasingly difficult. As a result, a standard protocol for all tokens was developed.
+* In Ethereum, ERCs are analogous to RFCs
+    * This is distinct from Ethereum Improvement Proposals (EIPs) -focused on the Ethereum protocol.
 * erc20
+    * _mint(msg.sender,1000*10**18);
+        * Solidity and the Ethereum Virtual Machine do not support decimals: only integer numbers can be used
+        * This means that only whole numbers can be sent (1, 4, 5), and this, of course, poses an issue.
+        * It’s very simple, a token contract can use larger integer values (the EVM supports 256-bit integers) so that a balance of 1000000000000000000 represents 1 ETH with 18 decimal places, hence a transfer of 4000000000000000 will correspond to 0.004ETH being sent.
+        * If you want a total max supply of 1.000.000.000 tokens, with 18 decimal places, like Ethereum and many other cryptocurrencies have, you want to pass 1000000000*10**18 that is (1000000000000000000000000000).
+        * On the other hand, when sending 2 tokens the method to call will actually be:
+            * transfer(recipient, 2 * 10**18);
+    * This is why, MyEtherWallet, for example, can support any ERC20 compliant token without having to be updated
+    * if the recipient is a contract, users must transfer their tokens using the approve +transferFrom mechanism. If the recipient is an externally owned account address then users must transfer their tokens via the transfer function. If a user will make a mistake and choose a wrong function then the tokens will get stuck inside contract (contract will not recognize a transaction). There will be no way to extract stuck tokens and the user will just lose his funds represented by this token.
+    * Explaining ERC20 and inside the structure: six functions, two events, and three information
+    * Fungible here means that each token in the set is indistinguishable from every other token in the set, in other words, they have a property that makes each Token be exactly the same (in type and value) of another Token
+    * This means that tokens built on the ERC-20 standard are compatible with one another and can be traded on Ethereum-based decentralized exchanges (DEXs) such as Uniswap and Sushiswap.
+    * ERC-20 tokens can represent any asset, such as a utility token, a security token, or even a stablecoin like Tether (USDT) or USD Coin (USDC)
+    * variety of purposes, such as fundraising for a new project, creating a loyalty program for a business, or providing access to a particular service or product.
+    * The ERC-20 standard defines six mandatory functions and three optional functions
+        * mandatory
+            * totalSupply: This function returns the total supply of tokens that have been created for a particular project.
+            * balanceOf: This function returns the balance of tokens held by a particular address.
+            * transfer: This function allows an address to send tokens to another address.
+                * It is important to note that when transferring tokens between accounts, the only transaction that happens on the blockchain is the contract call. In fact, when transferring tokens from one account to another (by using transfer() or transferFrom()) what the token contract does is simply update its own internal variable “_balances”, which contains for each account the amount of tokens it owns. This is showed in the snippets of code below.
+            * approve: This function allows an address to approve another address to spend tokens on their behalf.
+                * This is used, for example, by decentralized exchanges.
+            * transferFrom: This function allows an address to transfer tokens from another address that has approved them to do so.
+            * allowance: This function returns the amount of tokens that an approved address can spend on behalf of another address.
+        * optional
+            * name: This function returns the name of the token.
+            * symbol: This function returns the symbol of the token (usually a few letters or characters that represent the token).
+            * decimals: This function returns the number of decimal places that the token can be divided into (for example, a token with 18 decimal places can be divided into 10^18 units).
+    * The following events are triggered based on the listed ERC-20 functions:
+        * transfer(address indexed _from, address indexed _to, uint256 _value) : this is triggered whenever tokens are transferred
+            * Minting tokens emits a Transfer() event with the 0 address as the source.
+        * approval(address indexed _owner, address indexed _spender, uint256 _value) : this is triggered on any call to approve() function
+    * Developers can also add additional functions and features to their ERC-20 token contracts beyond the six mandatory and three optional functions.
+    * Tether (USDT)
+        * Tether’s value is pegged to the US dollar at a 1:1 ratio
+        * commonly used to move funds between exchanges quickly and easily
     * “with the ERC20 token standard APIs, it is not possible to get notifications of another action being triggered when an ERC20 standard-specific token is received at the deployed contract”
       * “The token transfers are received at the contract silently.”
       * “The ERC223 standard provides the methods that will be called once the tokens are transferred”
@@ -439,7 +683,121 @@
       * “However, these functions are not part of the ERC20 standard APIs”
       * “These functions are just added to improve usage and reduce security issues and attacks”
       * i“n the new OpenZeppelin implementation of ERC20 contracts, there are more functions such as _mint(), _burn(), and _burnFrom() that were also added”
+    * Let’s check them out:
+      Reputation points of any online platform.
+      Lottery tickets and schemes.
+      Financial assets such as shares, dividends, and stocks of a company
+      Fiat currencies, including USD.
+      Gold ounce, and much more.
 * erc721
+    * Let’s understand what can ERC-721 represents:
+      - A unique digital content piece.
+      - Real estate property.
+      - Social media content Tweets, Videos, and pictures.
+      - Gaming assets and collectibles.
+      - Gaming characters.
+    * Under ERC-721, each NFT also has a numerical identifier (uint256) called TokenID. Each contract address-TokenID pair must be unique. This practically ensures that NFTs remain unique even if they come from the same smart contract. It’s also how NFT collections can be created – the entire collection comes from a single ERC-721 contract, with each item having its own TokenID.
+    * An ERC721 token represents a class of assets, whereas an ERC20 token represents a particular type of asset.
+    * For example, a domain name is a non-fungible asset because there cannot be another domain name of the same sort due to its unique aspects. Thus, non-fungible tokens represent a single, unique and indivisible entity, whether physical or immaterial, such as intellectual property or photograph.
+    * Through royalty implementations in the smart contract, original creators can receive a predetermined percentage of sales whenever the NFT changes hands.
+    * Core Functionalities of an NFT Smart Contract
+        * Minting NFTs
+            * it creates a fresh, unique token within the contract
+            * Minting can be restricted to certain addresses to prevent unauthorized creation of tokens.
+        * Transferring NFTs
+            * Approving: This grants permission for another address to transfer an NFT on behalf of the owner.
+            * Safe Transfers: These functions ensure the destination address can handle the NFT, preventing accidental loss.
+        * Burning NFTs
+            * Burning removes an NFT from existence, reducing the total supply
+        * Accessing NFT Metadata
+            * The URI (Uniform Resource Identifier) function in a smart contract points to this metadata, allowing platforms and wallets to display the NFT’s distinct attributes.
+        * example: https://example.com/nft/1
+            ```
+            {
+              "name": "One Ring to Rule Them All",
+              "description": "The One Ring, forged in the fires of Mount Doom, grants immense power to its bearer.",
+              "image": "https://example.com/one_ring.jpg",
+              "attributes": [
+                {
+                  "trait_type": "Type",
+                  "value": "Artifact"
+                },
+                {
+                  "trait_type": "Rarity",
+                  "value": "Legendary"
+                },
+                {
+                  "trait_type": "Power",
+                  "value": "Dominion over all other rings"
+                },
+                {
+                  "trait_type": "Owner",
+                  "value": "Sauron"
+                }
+              ],
+              "external_url": "https://example.com/one_ring",
+              "franchise": "The Lord of the Rings",
+              "lore": "Forged by the Dark Lord Sauron to control the other Rings of Power, the One Ring is a malevolent artifact of great evil."
+            }
+
+            ```
+    * At the heart of NFTs lies smart contract development
+    * Smart contracts play a critical role in the development and transfer of NFTs.
+        * In the context of NFTs, smart contracts define the ownership and transfer rights of a particular digital asset, and they ensure that these rights are upheld throughout the lifetime of the asset.
+    * Until the invention of the blockchain, most digital items couldn’t be non-fungible. Anybody could copy/save digital items (pictures, music, artwork) and you had no way of deciphering which one was the original or who owned what.
+    * An NFT is a digital receipt of something you purchased
+    * This uniqueness is defined by 4 main characteristics:
+        * The sole creator
+            * When the NFT is created, the creator will come and “sign” it
+            * Indeed, by interacting with a “smart contract” (contract on a blockchain) the creator will initiate an event on a blockchain, which will allow time stamping and creating the NFT in an unalterable way.
+            * To give you a more meaningful image of this signature via the blockchain, you can think of it as the equivalent of a painter’s signature on a canvas.
+        * The unalterable identifier
+            * The equivalent of the NFT’s identity card number is its identifier.
+            * It is this sequence of numbers or letters, unmodifiable and unalterable, that will identify an NFT on a blockchain.
+            * To draw a parallel with the physical world, this corresponds to a unique serial number.
+        * Its content
+            * Identifier and content of the NFT are two distinct elements
+                * The identifier is defined at creation and is unalterable, which is what will be certain of the “identity” of the NFT
+                * The content is also defined during creation but it can be totally or partially modified.
+        * The current owner
+            * Indeed, the last owner of the NFT will be known through the transfer between two blockchain wallets
+            * It is thus possible to know all the owners in chronological order by using time-stamped blockchain transfers.
+    * NFT is a type of digital token or asset
+    * When you buy an NFT, you are buying a piece of data that points to a server that hosts that image.
+        * So, what you own, is not the access to the server, and not the image itself, but rather that tiny piece of data that points to the server.
+    * NFT stands for non-fungible token
+        * the term ‘non-fungible’ denotes non-exchangeable, i.e. fully unique
+        * a $100 dollar bill, which is a fungible asset since anybody may exchange their $100 bill for another $100 bill without issue
+        * There have been reports of $1 notes with extremely uncommon serial numbers being traded for thousands of dollars.
+        * For example, money is fungible, diamonds aren’t
+            * Diamonds aren’t interchangeable as they all have different cuts, colours and sizes
+            * You can’t swap one diamond for another because they won’t be guaranteed to hold the same value.
+    * NFTs are digital assets that represent ownership or proof of authenticity of a unique item or piece of content, such as artwork, music, videos, or virtual real estate
+    * NFTs are essentially digital certificates of authenticity
+        * used to prove ownership of digital data, or to label anything in the digital world as your own.
+    * example: a work of art, such as a painting
+    * use cases
+        * Art
+            * most highly publicized examples of NFTs have been in visual art, especially videos and still images that have sold for millions of dollars
+        * Collectibles
+            * NFT technology has also proved a fit for digital versions of other collectibles, such as trading cards
+            * Sports leagues including the NFL, MLB and NBA have all created digital collections memorializing things such as notable statistics and outstanding plays.
+        * Gaming and virtual reality
+            * NFTs can be attached to some unique video game items such as weapons, outfits or special characters — many of which have long been sold and traded in in-game marketplaces
+            * when their digital assets can be transferred between games or platforms, or traded on open markets, they will invest more of their hard-earned cash
+        * Licenses and Certifications
+            * NFT use cases can also provide significant benefits for licensing and certification verification
+            * Course completion certificates, like any other diploma or license, are typically offered to successful applicants in digital or paper form
+            * Universities and employers require replicas of the course completion document as references before offering a position to someone in a company or institute.
+    * Where to buy NFTs
+        * OpenSea
+            * Refers to itself as the “amazon of NFTs”, this marketplace has a large and wide variety of different types of NFTs consumers may want to investigate.
+    * NFTs and blockchain ledgers give content creators and artists an opportunity to monetize their projects without the physical resources needed to do that in the real world.
+        * For example, artists don’t have to rely on gallery shows or live auctions to be able to sell their art.
+    * with NFTs, “copies” are worthless because they aren’t the original, and anybody can verify that
+    * It was not possible to authenticate a digital ‘asset’ prior to the advent of NFT technology on a blockchain
+    * Apart from being identifiable, NFTs carry other unique characteristics such as being indivisible, tradeable, fraud proof, scarce, and programmable.
+        * NFT creators can specify that royalties be paid to them whenever an NFT changes hands
     * “ERC721 is a Non-Fungible Token (NFT) standard”
       * “This standard is used in many cases where you want to transfer a whole item that cannot be broken into multiple parts, for example, a house deed or collectible cards”
       * “As you can see in the code, the ERC721 interface also inherits from the ERC165 standard.”
@@ -465,6 +823,111 @@
           * “When this _data parameter is not empty, the further function call will be initiated from the receiver's onERC721Received() function”
       * “contract ABC is ERC721, ERC721Enumerable, ERC721Metadata”
 * erc1155
+    * Technically, we called it the fungible-agnostic standard because the interface can handle both fungible and non-fungible tokens in a single contract “natively” without any kind of hack
+        * Fungible-agnostic means the quality to be both fungible (breakable into small units and thus interchangeable) and non-fungible (atomic, non-breakable a.k.a NFTs)
+    * As NFT can represent real estates, an ERC-1155 “sub-token” can represent business shares in a company.
+        * Everyone own an equivalent amount of tokens as her or his share percentage in the company.
+    * In order to set a different URI for each token, you would want to use the ERC1155URIStorage extension. For example, if each NFT is pinned to its own IPFS hash, with a unique base URL, then you would need to set the URI for each token individually using the _setURI() function.
+        * _setURI(uint256 tokenId, string tokenURI)
+        * The base ERC1155 implementation only has the ability to set the base URI in the constructor.
+        * When the uri() function is called it returns the string that relies on the token type ID substitution mechanism.
+            * his standard expects to return the string URI like https://token-cdn-domain/{id}.json with the token id replaced by its hexadecimal value padded with 64 zeros.
+    * To achieve this, ERC-1155 makes use of TokenID, just like ERC-721, but there is one key difference. In ERC-1155 contracts each unique identifier represents a configurable token type that can have its own attributes, like supply, metadata and so on. If the supply is set at one, that token is treated as an NFT.
+    * it allows users to create new items without having to deploy new contracts, which is utilized by many NFT marketplaces
+    * ERC-1155 supports secure atomic swaps, allowing the exchange of two tokens within a single transaction.
+    * FUNCTIONS AND FEATURES:
+      Batch Transfer: Transfer multiple assets in a single call.
+      Batch Balance: Get the balances of multiple assets in a single call.
+      Batch Approval: Approve all tokens to an address.
+        * This is intentionally designed with simplicity in mind. You can only approve everything for one address.
+      Hooks: Receive tokens hook.
+        * onERC1155BatchReceived
+        * Given the EIP-165(opens in a new tab) support, ERC-1155 supports receive hooks for smart contracts only.
+        * ERC-1155 supports receive hooks only for smart contracts. The hook function must have to return a predefined magic bytes4 value which is as following:
+          bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))
+          As soon as receiving contracts returns this value, we assume that the contract can now accept the transfer and it understand how to manage ERC-1155 tokens. That’s done!
+        * When the receiving contract returns this value, it is assumed the contract accepts the transfer and knows how to handle the ERC-1155 tokens. Great, no more stuck tokens in a contract!
+      NFT Support: If supply is only 1, treat it as NFT.
+      Safe Transfer Rules: Set of rules for secure transfer.
+        * The transfer call must revert if
+          _to address is 0.
+    * It has a safe transfer function that allows tokens to be reclaimed if they are sent to the wrong address, unlike ERC-20 and ERC-1155
+        * A key difference when using safeTransferFrom is that token transfers to other contracts may revert with the following message:
+          ERC1155: transfer to non ERC1155Receiver implementer
+        * It means that the recipient contract has not registered itself as aware of the ERC1155 protocol, so transfers to it are disabled to prevent tokens from being locked forever
+            * As an example, the Golem contract currently holds over 350k GNT tokens, worth multiple tens of thousands of dollars, and lacks methods to get them out of there.
+            * This has happened to virtually every ERC20-backed project, usually due to user error.
+    * In order for our contract to receive ERC1155 tokens we can inherit from the convenience contract ERC1155Holder which handles the registering for us.
+        * import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+    * Semi-fungible tokens are like general admission concert tickets.
+        * They are interchangeable and can be sold for money before the show (fungible)
+        * But after the show they lose their pre-show value and become collectibles (non-fungible)
+    * The standard provides two functions, balanceOfBatch and safeBatchTransferFrom, that make querying multiple balances and transferring multiple tokens simpler and less gas-intensive.
+    * This is why its balanceOf function differs from ERC20’s and ERC777’s: it has an additional id argument for the identifier of the token that you want to query the balance of.
+        * This is similar to how ERC721 does things, but in that standard a token id has no concept of balance: each token is non-fungible and exists or doesn’t.
+        * The ERC721 balanceOf function refers to how many different tokens an account has, not how many of each. On the other hand, in ERC1155 accounts have a distinct balance for each token id, and non-fungible tokens are implemented by simply minting a single one of them.
+    * use case
+        * blockchain-based decentralized games, as games need coins and collectibles
+        * ERC-1155 can be employed for creating and managing digital art and collectible tokens with different levels of rarity, editions, and properties.
+    * Before
+        * In a game with 100,000 items that means 100,000 smart contracts!
+            * As ERC-1155 developer Witek Radomski pointed out, that's like needing a different phone for each app you use
+            * This means if you wanted to send a sword to one friend, a shield to another, and 100 gold coins to both, you could do so in only one transaction.
+        * This limitation meant that if someone wanted to transfer, say, USDC (ERC-20) and a CryptoKitties NFT (ERC-721), they would need to execute multiple transactions, which was inefficient and expensive.
+        * ERC1155, if a use case needed both ERC20 (fungible) and ERC721 (non-fungible) tokens, then separate contracts were required to achieve this
+    * allows for multiple NFT collections to be launched in just one smart contract instead of creating a different contract for each collection
+    * batch transfer of tokens is also possible instead of transferring a token to a single address in previous standards.
+        * This means that any number of items can be sent in a single transaction to one or more recipients, reducing transaction costs and complexity.
+    * is a multi-token standard that allows the creation of fungible, non-fungible, and semi-fungible tokens all in one contract
+    * It can save costs by managing tokens in batches (approval, transfer and balance) instead of individually
+    * fungibility-agnostic token standard
+    * allows multiple token to be represented by a single contract, regardless of fungibility
+    * Suppose a developer wants to develop an NFT game. They plan to create one fungible token as the in-game currency and multiple non-fungible tokens for unique in-game assets such as skins, guns, merchandise, etc. If they use ERC-20 and ERC-721 standards, they would have to write new smart contracts to support every new type of asset they create. However, using ERC-1155 would enable them to write just one contract to support all kinds of tokens they want to have in the game.
+    * ERC-1155 Multi Token Standard allows for each token ID to represent a new configurable token type, which may have its own metadata, supply and other attributes.
+    * ERC1155 interface.
+      safeTransferFrom
+      safeBatchTransferFrom
+      balanceOf
+      balanceOfBatch
+      setApprovalForAll
+      isApprovedForAll
+    * Events
+      TransferSingle
+      TransferBatch
+      ApprovalForAll
+      URI
+    * Smart contracts MUST implement all of the functions in the ERC1155TokenReceiver interface to accept transfers.
+        * onERC1155Received
+        * onERC1155BatchReceived
+* ERC165
+    * If standards are developing and evolving over time, then ERC721 version 0.0.1 (a number I just made up) may have an interfaceID of 0x9f40b779 (which is the value of InterfaceID_ERC721 in the contract you provided). However, version 0.0.2 may add, change, or remove a function, which would completely change the interfaceID to something else.
+        * So as long as you specify that your contract complies to ERC721 0.0.1, someone else can look up the interface, and check it against your contract.
+    * So the very short answer to your question is, you shouldn't be checking supportsInterface against a single function, but rather against the whole interface.
+    * The idea is that anyone can find the specification for the interface, and just check the interfaceID of that interface against your contract.
+    * play a vital role in enabling seamless interactions between smart contracts and DApps
+    * before
+        * determining a smart contract’s supported interfaces was a challenging and gas-consuming process
+        * some interaction might involve sending test transactions to the contract and observing the behavior
+            * if the contract didn't support the desired interface, the transaction would fail or return an unexpected result
+    * address the need for a standardized way of querying smart contracts to determine which interfaces or functionalities they support
+    * interfaces are not explicitly represented on the blockchain
+        * used by developers during the coding and development process
+        * applications must usually simply trust they are not making an incorrect call
+            * contract declaring its interface can be very helpful in preventing errors
+    * accounts simply declare their interfaces
+        * they are not required to actually implement them
+        * must not be relied on for security
+    * is a standard to detect and publish what interfaces a smart contract implements
+    * it is sometimes useful to query whether a contract supports the interface and if yes, which version of the interface, in order to adapt the way in which the contract is to be interacted with
+    * interface has a single selector that can be calculated from the functions it implements
+        * is defined as the XOR of all function selectors
+        * `type(interface).interfaceId` returns the same as the interface selector
+    * use case
+        * we want to interact with a contract but we don't know if it supports an interface such as ERC20 or ERC721
+        * example: OpenSea - NFT Marketplace
+            * uses ERC165 to check if a given contract supports the ERC721 standard, which is the most common standard for non-fungible tokens
+            * if a contract doesn't support ERC721 (as indicated by the supportsInterface call), OpenSea will handle it differently,
+
 * openzeppelin
 * “ The following is an example of enclosing a token transfer call and an approve call within the require() function:”
   * “require(ERC20(tokenAddress).transferFrom(from, to, value));”
