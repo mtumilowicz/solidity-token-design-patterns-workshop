@@ -16,8 +16,6 @@
     * https://slowmist.medium.com/intro-to-smart-contract-security-audit-signature-replay-b71c23910629
     * https://ethereum.stackexchange.com/questions/26/what-is-a-replay-attack
     * https://mirror.xyz/0xbuidlerdao.eth/lOE5VN-BHI0olGOXe27F0auviIuoSlnou_9t3XRJseY
-    * https://medium.com/what-is-infura/what-is-infura-59dbdd778455
-    * https://ethereum.stackexchange.com/questions/6897/what-is-the-difference-between-truffle-and-remix
     * https://stackoverflow.com/questions/74164255/x19ethereum-signed-message-n32-prefix-meaning
     * https://ethereum.stackexchange.com/questions/128552/why-would-you-use-a-signed-message-to-verify-the-sender
     * https://medium.com/mycrypto/the-magic-of-digital-signatures-on-ethereum-98fe184dc9c7
@@ -107,8 +105,11 @@
     * https://medium.com/pinata/what-is-an-ipfs-pinning-service-f6ed4cd7e475
     * https://medium.com/hackernoon/ipfs-and-merkle-forest-a6b7f15f3537
     * https://medium.com/hackernoon/a-beginners-guide-to-ipfs-20673fedd3f
+    * https://medium.com/textileio/swapping-bits-and-distributing-hashes-on-the-decentralized-web-5da98a3507
+    * https://medium.com/textileio/whats-really-happening-when-you-add-a-file-to-ipfs-ae3b8b5e4b0f
+    * https://medium.com/textileio/how-ipfs-peer-nodes-identify-each-other-on-the-distributed-web-8b5b6476aa5e
 
-# best practices
+## best practices
     * don't use plain secret on-chain
         * problem: front-running attacks
             * all the transaction data is open and can be seen by others
@@ -466,184 +467,249 @@
         * each level is a smart contract that needs to be ‘hacked’
         * solutions: https://stermi.medium.com/lets-play-ethernaut-ctf-learning-solidity-security-while-playing-1678bd6db3c4
 
-# tools
-* infura
-    * is a kind of node storage (cluster)
-    * set of tools that provides its services for integrating your application with the Ethereum network
-    * you do not need to run your local blockchain for the mainnet and testnets
-        * example: MetaMask internally uses an Infura link to connect to the Ethereum blockchain
-    * also host the Inter Planetary File System (IPFS) nodes and the IPFS public gateway
-* Truffle
-    * development environment/framework for smart contracts
-    * can be included in projects as a build dependency
-* Remix
-    * IDE in the browser
-* linters
-    * analyze the given source code and report programming errors, bugs, and stylistic errors
-    * two commonly used linter tools available
-        * solhint - provides security and style guideline-specific validations
-        * ethlint -  similar to solhint
-* solidity-coverage
-    * ode coverage tool specifically designed for Solidity smart contracts
-
-# ipfs
-* Self-certifying File System
-    * Each node on the network has a set of public keys, private keys and a node ID which is the hash of its public key. Nodes can therefore use their private keys to ‘sign’ any data objects they publish, and the authenticity of this data can be verified using the sender’s public key.
-* A merkle DAG is basically a data structure where hashes are used to reference data blocks and objects in a DAG.
-    * This creates several useful features: all content on IPFS can be uniquely identified, since each data block has a unique hash.
-* HTTP is great for loading websites but it wasn’t designed for the transfer of large amounts data (like audio and video files)
-    * These constraints possibly enabled the emergence and mainstream success of alternative filesharing systems like Napster (music) and BitTorrent (movies and pretty much anything).
-* ipfs-cluster peers coordinate their state (the list of CIDs which are pinned, their peer allocations and replication factor) using a consensus algorithm called Raft
-    * Raft is used to commit log entries to a “distributed log” which every peer follows. Every “Pin” and “Unpin” requests are log entries in that log.
-    * When a peer receives a log “Pin” operation, it updates its local copy of the shared state to indicate that the CID is now pinned.
-    * In order to work, Raft elects a cluster “Leader”, which is the only peer allowed to commit entries to the log. Thus, a Leader election can only succeed if at least half of the nodes are online. Log entries, and other parts of ipfs-cluster functionality (initialization, monitoring), can only happen when a Leader exists.
-* (What is Merkle DAG? It is a Merkle directed acyclic graph. It is similar to Merkle tree. However, a Merkle DAG need not be balanced and its non-leaf nodes are allowed to contain data.)
-* When an IPFS node retrieves data from the network it keeps a local cache of that data for future usage, taking up space on that particular IPFS node
-    * IPFS nodes frequently clear this cache out in order to make room for new content.
-    * But, what happens if you want to make sure that certain content will never be deleted?
-        * The act of saving data on an IPFS node is often referred to as “pinning”
-        * When you “pin” data on an IPFS node, you are telling that node that the data is important and it should be saved. Pinning prevents important data from being deleted from your node when the clearing process happens. However, you can only control and pin data on your node(s). You can not force other nodes on the IPFS network to pin your content for you. So, to guarantee your content stays pinned, you have to run your own IPFS nodes.
-* Now we are going to pin the file we added to IPFS. As the file exists on our local machine, but by pinning the file, other nodes on the IPFS network know they can access the file from our machine.
-* It maintains a HTTP -> IPFS gateway, and we can access any one of our files from their website, where they have mounted the IPFS system on their HTTP URL: https://ipfs.io/ipfs/[yourHash].
-    * Run below link to check file hello.txt, fully loaded on IPFS
-        * https://ipfs.io/ipfs/QmWATWQ7fVPP2EFGu71UkfnqhYXDYH566qy47CnJDgvs8u
-        * https://gateway.ipfs.io/ipfs/QmWATWQ7fVPP2EFGu71UkfnqhYXDYH566qy47CnJDgvs8u
-* Unlike HTTP protocol which refers objects (text files, pics, videos) by which server they are stored on, IPFS refers everything by the hash on the file.
-    * Which means it creates file hash as per the content in the file
-* Is there any access-control for data?
-  Ans: No. Anyone can access your data provided that they know the hash. To avoid this, you can use combination of symmetric and asymmetric encryption.
-* IPFS stands for Interplanetary File System
-    * Suppose humanity has colonises Mar and the first person on Mars tries to access internet services from Earth. It would approximately take 1 hour for him to access a news website. What if another person tries? He ends up taking another 1 hour and so on.
-      But IFPS is used, the second person on Mars shall be able to retrieve the content from the first person who came on Mars instantly. From there onwards data can spread like a wildfire on Mars.
+## ipfs
+* stands for Interplanetary File System
+    1. suppose humanity has colonises Mars and the first person on Mars tries to access internet services from Earth
+    1. it would approximately take 1 hour for him to access a news website
+    1. what if another person tries?
+        * he ends up taking another 1 hour and so on
+        * but IFPS is used, the second person on Mars shall be able to retrieve the content from the first person
+            * from there onwards data can spread like a wildfire
+* three main principles
+    1. unique identification via content addressing
+        * means that the content is going to determine the address
+            * once something is added it can’t be changed
+        * intuitive way to think about content for humans
+            * example: ask someone for their favorite cat video
+                * location answer: "the one on this server, at this sub-domain, under this file path, slash hilarious dash cat dot mp4"
+                * description answer: "the one where the cat knocks the glass off the counter"
+            * is generally not how we access content on the web today
+                * http
+                    * refers objects (text files, pics, videos) by which server they are stored on
+                        * called "location based addressing"
+                            * location is the IP address or the domain name
+                            * if location isn’t accessible (the server is down), you won’t get resources
+                                * there is a high probability that someone else out there has downloaded resource and still has a copy of it
+                                    * yet your computer won’t be able to grab it from that other person
+                        * IPFS moves from "location based addressing" to "content based addressing"
+                            * instead of creating an identifier that addresses things by location
+                                * address it by some representation of the content itself
+                            * if in your browser you want to access a particular page then IPFS will ask the entire network "does anyone have this file that corresponds to this hash?"
+                                * instead of saying where to find a resource, you just say what it is you want
+                    * is great for loading websites but it wasn’t designed for the transfer of large amounts data
+                        * example: audio, video files
+                        * files are downloaded from one server at a time
+                            * IPFS retrieves pieces of files from multiple nodes at once
+                                * enables bandwidth savings of up to 60% for things like videos
+                        * enabled the emergence and mainstream success of alternative filesharing systems
+                            * example: Napster (music) and BitTorrent (movies and pretty much anything)
+        * mechanism
+            * overview
+                ![Alt Text](img/cid_creation.png)
+            1. take a file
+            1. hash it cryptographically
+                * very small and secure representation of the file
+                * hashes are actually something called a multihash
+                    * specifies which hash function it used
+                    * specifies the length of the resultant hash in the first two bytes of the multihash
+                    * example: hashes all seem to start with Qm
+                        * 12 denotes that this is the SHA256
+                        * output length is 20 in hex (or 32 bytes)
+                        * we get the Qm from when we base58 encode the whole thing
+        * address usually starts with a hash that identifies some root object and then a path walking down
+            * instead of a server, you are talking to a specific object and then you are looking at a path within that object
+    1. content is linked via Merkle Directed Acyclic Graphs (DAGs)
+        * hashes are used to reference data blocks and objects in a DAG
+        * similar to Merkle tree
+            * difference: Merkle DAG non-leaf nodes are allowed to contain data
+        * need not be balanced
+        * example: https://explore.ipld.io/#/explore/QmWNj1pTSjbauDHpdyg5HQ26vYcNWnubg1JehmwAE9NnU9
+        * de-duplication by design
+            * we reference content (not the files themselves)
+            * adding a new file to the network will take less storage as the network gets larger
+                * assuming the file is relatively similar to others in the network
+    1. content discovery system is facilitated via Distributed Hash Tables (DHTs)
+        * information about which node stores what blocks is organized as a distributed hash table
+            * split across the nodes just like data itself
+        * small values (equal to or less than 1KB) are stored directly on the DHT
+        * for larger values, the DHT stores references (NodeIds of peers who can serve the block)
+        * ask the network = query the distributed hash table
+        * based on Kademlia
+            * pretty common is p2p systems
+        * example: find peers that can provide a particular bit of content
+            ```
+            ipfs dht findprovs QmW2WQi7j6c7UgJTarActp7tDNikE4B2qXtFCfLPdsgaTQ
+            ```
+* distributed file system that seeks to connect all computing devices with the same system of files
+    * small file (< 256 kB)
+        * represented by an IPFS object
+            * data = the file contents (plus a small header and footer)
+            * no links, i.e. the links array is empty
+    * large file (> 256 kB)
+        * represented by an IPFS object
+            * data = specifying that this object represents a large file
+            * links = list of links to file chunks that are < 256 kB
+    * directory is represented by a list of links to IPFS objects representing files or other directories
+        * example: assume that all three files with an asterisk (*) contain the same text: “Hello World!/n”
+            ```
+            test_dir/
+            ├── bigfile.js
+            ├── *hello.txt // "Hello World!/n"
+            └── my_dir
+                ├── *my_file.txt // "Hello World!/n"
+                └── *testing.txt // "Hello World!/n"
+            ```
+            DAG
+            ![Alt Text](img/dag_directory.png)
+    * IPFS object
+        * example
+            ```
+            $ ipfs object get QmarHSr9aSNaPSR6G9KFPbuLV9aEqJfTk1y9B8pdwqK4Rq // normally referred to by their Base58 encoded hash
+            {
+              "Links": [
+                {
+                  "Name": "AnotherName",
+                  "Hash": "QmVtYjNij3KeyGmcgg7yVXWskLaBtov3UYL9pgcGK3MCWu",
+                  "Size": 18
+                },
+                {
+                  "Name": "SomeName",
+                  "Hash": "QmbUSy8HCn8J4TMDRRdxCbK2uCCtkQyZtY6XYv3y7kLgDC",
+                  "Size": 58
+                }
+              ],
+              "Data": "Hello World!"
+            }
+            ```
+        * Data - a blob of unstructured binary data of size < 256 kB
+        * Links - an array of Link structures (links to other IPFS objects)
+            * Name — the name of the Link
+            * Hash — the hash of the linked IPFS object
+            * Size — the cumulative size of the linked IPFS object, including following its links
+        * note that the file name is not part of the IPFS object
+            * two files with different names and the same content => same IPFS object representation
+                * and hence the same hash
+* is essentially a P2P system for retrieving and sharing IPFS objects
 * acts as a decentralized source of data
-    * There is a thin line that separates distributed and decentralized data source. Distributed means that the processing is shared across multiple nodes, but the decisions may still be centralized and use complete system knowledge. Decentralized means that there is no single point where the decision is made. Every node makes a decision for it’s own behaviour and the resulting system behaviour is the aggregate response.
-* https://ipfs.github.io/public-gateway-checker/
-    * https://gateway.pinata.cloud/ipfs/QmXLdCoTPVZ8Vf5PrEZR1awPKR8PvxmyEakaR5ummPCPnh
-* The way things currently work is if you want to download a photo from the internet, you tell the computer exactly where to find the photo.
-    * The location of the photo is the IP address or the domain name
-        * This is called “location based addressing.”
-        * So if you tell the computer where to get the information but that location isn’t accessible (the server is down), you won’t get the photo
-        * When that happens there is a high probability that someone else out there has downloaded that picture before and still has a copy of it, yet your computer won’t be able to grab it from that other person.
-    * To fix this, IPFS moves from “location based addressing” to “content based addressing.”
-        * Instead of saying where to find a resource, you just say what it is you want
-        * Since IPFS uses content based addressing, once something is added it can’t be changed
-* Now you might be thinking, if you are retrieving these files from peer nodes and not some trusted centralized server, then how can you be sure that the file you requested hasn’t been tampered with?
-    * Since we are using a hash to request the file, you can verify what you received.
-    * Upon receiving a file, you can check if the hash of the file received matches the hash of the file requested
-* When using HTTP, files are downloaded from one server at a time. A peer-to-peer system like IPFS retrieves pieces of files from multiple nodes at once which enables bandwidth savings of up to 60% for things like videos. This makes it possible to efficiently distribute high volumes of data without duplication of files.
-* There are three main principles key to understanding IPFS
-    * The first is the unique identification via content addressing, which means IPFS knows how to find what you’re looking for by using the content’s unique address rather than its location.
-    * The second is that content is linked via Directed Acyclic Graphs (DAGs)
-    * And the third is that the content discovery system is facilitated via Distributed Hash Tables (DHTs).
-        * The information about which node stores what blocks is organized as a distributed hash table, which is split across the nodes just like data itself.
-        * Small values (equal to or less than 1KB) are stored directly on the DHT. For values larger, the DHT stores references, which are the NodeIds of peers who can serve the block.
-* peer-to-peer hypermedia protocol
-* Sounds Great! Why Are People Complaining About Lost Files Then?
-  Because each node chooses which file to store.
-* in the IPFS lingo, storing something that’s available is called “pinning”
-* IPFS is duplication proof: Data is chunked and then stored and then hashed when added to the network, allowing duplicate data to map to the same nodes, and thus only one entry is created. Adding a new file to the network will take less storage as the network gets larger, assuming the file is relatively similar to others in the network.
-* IPFS is essentially a P2P system for retrieving and sharing IPFS objects.
-* IPFS began as an effort by Juan Benet to build a system that is very fast at moving around versioned scientific data. Versioning gives you the ability to track how states of software change over time (think Git).
-* IPFS has since become thought of as the The Distributed, Permanent Web
-* “IPFS is a distributed file system that seeks to connect all computing devices with the same system of files
-* IPFS is actually more similar to a single bittorrent swarm exchanging git objects
-    * BitTorrent is a successful and widely implemented protocol used to share large data
-      files in a distributed manner. It is best known for digital video sharing such as TV shows,
-      movies, video clips, ...etc.
-    * The protocol partitions such large data files into segments that are
-      distributed over different nodes of a peer-to-peer network.
-    * When a user requests a certain file,
-      the online storing nodes begin to share the partitions they store.
-    * As a result, data is being shared
-      from more than one source and we are not exhausting a single server
-    * A notable difference is that where in BitTorrent each file has a separate swarm of peers (forming a P2P network with each other) where IPFS is one big swarm of peers for all data.
-* When peers connect, they exchange which blocks they have (have_list) and which blocks they are looking for (want_list)
-* BitSwap Strategy:
-  - this strategy is based on previous data exchanges between these two peers
-  - when peers exchange blocks they keep track of the amount of data they share (builds credit) and the amount of data they receive (builds debt)
-  - this accounting between two peers is kept track of in the BitSwap Ledger
-  - if a peer has credit (shared more than received), our node will send the requested block
-  - if a peer has debt, our node will share or not share, depending on a deterministic function where the chance of sharing becomes smaller when the debt is bigger
-  - a data exchange always starts with the exchange of the ledger, if it is not identical our node disconnects
-* The idea is that if in your browser you want to access a particular page then IPFS will ask the entire network “does anyone have this file that corresponds to this hash?” and a node on IPFS that does can return the file allowing you to access it.
-    * This is the practice of saying instead of creating an identifier that addresses things by location, we’re going to address it by some representation of the content itself.
-* This means that the content is going to determine the address.
-    * The mechanism is to take a file, hash it cryptographically so you end up with a very small and secure representation of the file which ensures that someone can not just come up with another file that has the same hash and use that as the address
-    * The address of a file in IPFS usually starts with a hash that identifies some root object and then a path walking down
-        * Instead of a server, you are talking to a specific object and then you are looking at a path within that object.
-* IPFS is essentially a P2P system for retrieving and sharing IPFS objects
-* An IPFS object is a data structure with two fields:
-  Data — a blob of unstructured binary data of size < 256 kB.
-  Links — an array of Link structures. These are links to other IPFS objects.
-    * A Link structure has three data fields:
-        Name — the name of the Link.
-        Hash — the hash of the linked IPFS object.
-        Size — the cumulative size of the linked IPFS object, including following its links.
-  * IPFS objects are normally referred to by their Base58 encoded hash
-  * example
-    ```
-    $ ipfs object get QmarHSr9aSNaPSR6G9KFPbuLV9aEqJfTk1y9B8pdwqK4Rq
-    {
-      "Links": [
-        {
-          "Name": "AnotherName",
-          "Hash": "QmVtYjNij3KeyGmcgg7yVXWskLaBtov3UYL9pgcGK3MCWu",
-          "Size": 18
-        },
-        {
-          "Name": "SomeName",
-          "Hash": "QmbUSy8HCn8J4TMDRRdxCbK2uCCtkQyZtY6XYv3y7kLgDC",
-          "Size": 58
-        }
-      ],
-      "Data": "Hello World!"
-    }
-    ```
-* The data and named links gives the collection of IPFS objects the structure of a Merkle DAG — DAG meaning Directed Acyclic Graph, and Merkle to signify that this is a cryptographically authenticated data structure that uses cryptographic hashes to address content.
-* Note that the file name is not part of the IPFS object, so two files with different names and the same content will have the same IPFS object representation and hence the same hash
-* A small file (< 256 kB) is represented by an IPFS object with data being the file contents (plus a small header and footer) and no links, i.e. the links array is empty.
-* A large file (> 256 kB) is represented by a list of links to file chunks that are < 256 kB, and only minimal Data specifying that this object represents a large file.
-* A directory is represented by a list of links to IPFS objects representing files or other directories.
-* IPFS can represent the data structures used by Git to allow for versioned file systems
-* An interesting point here is the distinction between storing data on the blockchain and storing hashes of data on the blockchain. On the Ethereum platform you pay a rather large fee for storing data in the associated state database, in order to minimize bloat of the state database (“blockchain bloat”). Thus it’s a common design pattern for larger pieces of data to store not the data itself but an IPFS hash of the data in the state database.
-* If the blockchain with its associated state database is already represented in IPFS then the distinction between storing a hash on the blockchain and storing the data on the blockchain becomes somewhat blurred, since everything is stored in IPFS anyway, and the hash of the block only needs the hash of the state database. In this case if someone has stored an IPFS link in the blockchain we can seamlessly follow this link to access the data as if the data was stored in the blockchain itself.
-* For a (bad:)) centralized NFT it returns the metadata location in the form of
-  HTTP://centralizedserver.com/TokenID
-* Sure, one could return something like
-  ipfs://contendidentifierhash/TokenID
-  * But as a friendly reminder, IPFS can only provide an immutable hierarchical file system structure that looks like a read/write file system but without the writing part.
-    * if all tokens and TokenIDs are set at the time of the smart contract deployment, this is a great way to decentralize
-*  So why can´t the TokenID be a pointer itself to the metadata — an idea by Titusz Pan? We would then just add “ipfs://” in front… which is well possible….
-  TokenID=IPFScontentidentifierhash
-  * But first, we have to look how ipfs content identifier looks like. CID (=contentidentifierhashes) come coded to the base58
-* We create a CID V1 by adding “cid-version=1 hash=blake2b-208”.
-    ```
-    $ ipfs add MetaDataIPFSToken.json cid-version=1 hash=blake2b-208
-    added bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a MetaDataIPFSToken.json
-    ```
-    Than convert it to hex “-b=base16”
-    ```
-    $ ipfs cid format -b=base16 bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a
-    f01559ae4021a99b0d373d7bc8a80504bad782367abe12c21373c83adc6bf6a7e
-    ```
-    Without the leading “f” this gives a wonderful token ID.
-    * constructor() public ERC1155("ipfs://f0{id}") {
-* Metadata can be stored on IPFS to decentralize an NFT. Doing so prevents centralized control over it. If metadata IPFS files are pinned at least somewhere on an online computer they cannot get lost.
-    * For long-term IPFS storage check out Filecoin or Arweave.
-* The second reason is that IPFS is immutable
-* The content cannot be changed, because if it changes the IPFS hash would also change.
-* So, storing the data on IPFS and writing the hash to the blockchain is something like writing the data itself to the blockchain, but much cheaper.
-* For example, a high-res image would be stored on a centralised server while only the link (i.e. https://www.domain.com/subdomain/imgLink) would be stored in the NFT.
-    * Those familiar with web2.0 architecture will be able to easily recognise that there is nothing stopping the image host from changing the image which the URL points to
-    * Decentralised storage technologies such as IPFS (InterPlanetary File System) aims to solve exactly this by enabling such data to be securely replicated across multiple nodes while minimising the risk of being censored or tampered with.
-* Instead of addresses which are based on the location of a file, IPFS redefines the address based on the file content.
-    * As any change to the file itself will change the hashed address, there are less trust assumptions when navigating to an address.
-    * Users can always compute the hash themselves to verify authenticity.
-    * If some data forms part of multiple datasets, each dataset only needs to link to one version of the data.
-        * Consequently, nobody has to store the entire dataset as links can be used to pull sections of data from across the network.
+    * distributed: processing is shared across multiple nodes
+        * decisions may still be centralized and use complete system knowledge
+    * decentralized: no single point where the decision is made
+        * every node makes a decision for it’s own behaviour
+        * resulting system behaviour is the aggregate response
+* self-certifying file system
+    * peer node can perform authentication and encryption
+        * when you initialize a new peer IPFS generates a pair of keys for it (private and public)
+            ```
+            $ ipfs init
+            initializing IPFS node at ~/.ipfs/
+            generating 2048-bit RSA keypair...done
+            peer identity: Qm...
+            ```
+    * peers are identifying each other via their peer ID
+        * is essentially a cryptographic hash of it’s public key
+        * enables peers to find each other and authenticate themselves once they get connected
+    * when two peers connect to each other they exchange public keys
+        * connections between peers are encrypted and authenticated by default
+        * authenticity of this data can be verified using the sender’s public key
+* operations
+    * retrieving
+        * when a node retrieves data from the network it keeps a local cache of that data for future usage
+            * nodes frequently clear this cache out in order to make room for new content
+        * HTTP -> IPFS gateway
+            * we can access any one of our files from their website
+            * https://ipfs.github.io/public-gateway-checker/
+            * example
+                * https://ipfs.io/ipfs/[yourHash]
+                * https://ipfs.io/ipfs/QmWATWQ7fVPP2EFGu71UkfnqhYXDYH566qy47CnJDgvs8u
+                * https://gateway.ipfs.io/ipfs/QmWATWQ7fVPP2EFGu71UkfnqhYXDYH566qy47CnJDgvs8u
+        * anyone can access your data provided that they know the hash
+            * use combination of symmetric and asymmetric encryption
+        * retrieving files from peer nodes and not some trusted centralized server
+        * trust: how can you be sure that the file you requested hasn’t been tampered with?
+            * since we are using a hash to request the file, you can verify what you received
+            * upon receiving a file, you can check if the hash of the file received matches the hash of the file requested
+                * any change to the file itself will change the hashed address
+    * adding
+        * each node chooses which file to store
+    * pinning
+        * act of saving data on a node
+        * prevents important data from being deleted from your node when the clearing process happens
+        * you can only control and pin data on your node(s)
+            * cannot force other nodes on the IPFS network to pin your content for you
+            * to guarantee your content stays pinned, you have to run your own IPFS nodes
+        * by pinning the file, other nodes on the network know they can access the file
+* is similar to a single BitTorrent swarm exchanging git objects
+    * IPFS = one big swarm of peers for all data
+        * difference: in BitTorrent each file has a separate swarm of peers (forming a P2P network with each other)
+    * BitTorrent
+        * is a successful and widely implemented protocol used to share large data files in a distributed manner
+            * example: digital video sharing (TV shows, movies, video clips, etc)
+        * splits large data files into segments
+            * distributed over different nodes of a peer-to-peer network
+            * result: data is being shared from more than one source
+                * we are not exhausting a single server
+* BitSwap
+    * their own exchange protocol
+    * data trading module for IPFS
+    * two primary jobs
+        1. attempt to acquire blocks from the network that have been requested by the client peer (your local peer)
+        1. judiciously (though strategically) send blocks of data that it already has in its possession to other peers who want those blocks
+    * example
+        1. verify that wantlist is empty (we aren’t in the middle of requesting anything)
+            ```
+            ipfs bitswap wantlist
+            ```
+        1. get a large file from the network
+            ```
+            ipfs get QmdpAidwAsBGptFB3b6A9Pyi5coEbgjHrL3K2Qrsutmj9K // Big Buck Bunny video
+            ```
+        1. query wantlist again
+            ```
+            ipfs bitswap wantlist // multiple hashes that are being requested from the network
+            ```
+* consensus algorithm: Raft
+    * peers coordinate their state
+        * example: the list of CIDs which are pinned, their peer allocations and replication factor
+    * is used to commit log entries to a "distributed log" which every peer follows
+        * example: every "Pin" and "Unpin" requests are log entries in that log
+            * when a peer receives a log "Pin" operation, it updates its local copy of the shared state
+                * indicates that the CID is now pinned
+    * Leader
+        * election can only succeed if at least half of the nodes are online
+        * only peer allowed to commit entries to the log
+        * required for other parts of ipfs-cluster functionality (initialization, monitoring)
+* blockchain
+    * An interesting point here is the distinction between storing data on the blockchain and storing hashes of data on the blockchain. On the Ethereum platform you pay a rather large fee for storing data in the associated state database, in order to minimize bloat of the state database (“blockchain bloat”). Thus it’s a common design pattern for larger pieces of data to store not the data itself but an IPFS hash of the data in the state database.
+    * If the blockchain with its associated state database is already represented in IPFS then the distinction between storing a hash on the blockchain and storing the data on the blockchain becomes somewhat blurred, since everything is stored in IPFS anyway, and the hash of the block only needs the hash of the state database. In this case if someone has stored an IPFS link in the blockchain we can seamlessly follow this link to access the data as if the data was stored in the blockchain itself.
+    * Metadata can be stored on IPFS to decentralize an NFT. Doing so prevents centralized control over it. If metadata IPFS files are pinned at least somewhere on an online computer they cannot get lost.
+        * For long-term IPFS storage check out Filecoin or Arweave.
+    * So, storing the data on IPFS and writing the hash to the blockchain is something like writing the data itself to the blockchain, but much cheaper.
+    * For example, a high-res image would be stored on a centralised server while only the link (i.e. https://www.domain.com/subdomain/imgLink) would be stored in the NFT.
+        * Those familiar with web2.0 architecture will be able to easily recognise that there is nothing stopping the image host from changing the image which the URL points to
+        * Decentralised storage technologies such as IPFS (InterPlanetary File System) aims to solve exactly this by enabling such data to be securely replicated across multiple nodes while minimising the risk of being censored or tampered with.
+    * For a (bad:)) centralized NFT it returns the metadata location in the form of
+      HTTP://centralizedserver.com/TokenID
+    * Sure, one could return something like
+      ipfs://contendidentifierhash/TokenID
+      * But as a friendly reminder, IPFS can only provide an immutable hierarchical file system structure that looks like a read/write file system but without the writing part.
+        * if all tokens and TokenIDs are set at the time of the smart contract deployment, this is a great way to decentralize
+    *  So why can´t the TokenID be a pointer itself to the metadata — an idea by Titusz Pan? We would then just add “ipfs://” in front… which is well possible….
+      TokenID=IPFScontentidentifierhash
+      * But first, we have to look how ipfs content identifier looks like. CID (=contentidentifierhashes) come coded to the base58
+    * example: We create a CID V1 by adding “cid-version=1 hash=blake2b-208”.
+        ```
+        $ ipfs add MetaDataIPFSToken.json cid-version=1 hash=blake2b-208
+        added bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a MetaDataIPFSToken.json
+        ```
+        Than convert it to hex “-b=base16”
+        ```
+        $ ipfs cid format -b=base16 bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a
+        f01559ae4021a99b0d373d7bc8a80504bad782367abe12c21373c83adc6bf6a7e
+        ```
+        Without the leading “f” this gives a wonderful token ID.
+        * constructor() public ERC1155("ipfs://f0{id}") {
 
-
-# tokens
+## tokens
 * standards play a pivotal role in ensuring interoperability and compatibility among different smart contracts and decentralized applications (DApps)
 * Though many think of Ethereum contracts as fully decentralized, nearly half of the top 20 projects can have their token transfers completely frozen by an owner (a single key or a multisig contract).
     * Pausing can be valuable for future upgrades, swaps, and disaster mitigation but also leads to new risks.
