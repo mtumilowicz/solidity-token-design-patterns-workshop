@@ -963,6 +963,18 @@
 * represents a class of assets, whereas an ERC20 token represents a particular type of asset
     * entire collection comes from a single ERC-721 contract, with each item having its own TokenID
 * smart contracts define the ownership and transfer rights of a particular digital asset
+* case studies
+    * art
+        * artists don’t have to rely on gallery shows or live auctions to be able to sell their art
+            * monetize their projects without the physical resources needed to do that in the real world
+    * collectibles
+        * sports leagues including the NFL, MLB and NBA have all created digital collections
+    * gaming and virtual reality
+        * players will invest more when digital assets can be
+            * transferred between games or platforms
+            * traded on open markets, they will invest more of their hard-earned cash
+    * licenses and certifications
+        * easily verifiable with university smart contract
 * functions
     * erc20 like
         * balanceOf(address _owner)
@@ -1090,98 +1102,61 @@
         * event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
         * event Approval(address indexed _owner, address indexed _approved, uint256 indexed _tokenId);
     * event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
-* case studies
-    * art
-        * artists don’t have to rely on gallery shows or live auctions to be able to sell their art
-            * monetize their projects without the physical resources needed to do that in the real world
-    * collectibles
-        * sports leagues including the NFL, MLB and NBA have all created digital collections
-    * gaming and virtual reality
-        * players will invest more when digital assets can be
-            * transferred between games or platforms
-            * traded on open markets, they will invest more of their hard-earned cash
-    * licenses and certifications
-        * easily verifiable with university smart contract
 * OpenSea
     * refers to itself as the "amazon of NFTs"
     * has a large and wide variety of different types of NFTs
-* erc1155
-    * Technically, we called it the fungible-agnostic standard because the interface can handle both fungible and non-fungible tokens in a single contract “natively” without any kind of hack
-        * Fungible-agnostic means the quality to be both fungible (breakable into small units and thus interchangeable) and non-fungible (atomic, non-breakable a.k.a NFTs)
-    * As NFT can represent real estates, an ERC-1155 “sub-token” can represent business shares in a company.
-        * Everyone own an equivalent amount of tokens as her or his share percentage in the company.
-    * In order to set a different URI for each token, you would want to use the ERC1155URIStorage extension. For example, if each NFT is pinned to its own IPFS hash, with a unique base URL, then you would need to set the URI for each token individually using the _setURI() function.
-        * _setURI(uint256 tokenId, string tokenURI)
-        * The base ERC1155 implementation only has the ability to set the base URI in the constructor.
-        * When the uri() function is called it returns the string that relies on the token type ID substitution mechanism.
-            * his standard expects to return the string URI like https://token-cdn-domain/{id}.json with the token id replaced by its hexadecimal value padded with 64 zeros.
-    * To achieve this, ERC-1155 makes use of TokenID, just like ERC-721, but there is one key difference. In ERC-1155 contracts each unique identifier represents a configurable token type that can have its own attributes, like supply, metadata and so on. If the supply is set at one, that token is treated as an NFT.
-    * it allows users to create new items without having to deploy new contracts, which is utilized by many NFT marketplaces
-    * ERC-1155 supports secure atomic swaps, allowing the exchange of two tokens within a single transaction.
-    * FUNCTIONS AND FEATURES:
-      Batch Transfer: Transfer multiple assets in a single call.
-      Batch Balance: Get the balances of multiple assets in a single call.
-      Batch Approval: Approve all tokens to an address.
-        * This is intentionally designed with simplicity in mind. You can only approve everything for one address.
-      Hooks: Receive tokens hook.
-        * onERC1155BatchReceived
-        * Given the EIP-165(opens in a new tab) support, ERC-1155 supports receive hooks for smart contracts only.
-        * ERC-1155 supports receive hooks only for smart contracts. The hook function must have to return a predefined magic bytes4 value which is as following:
-          bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))
-          As soon as receiving contracts returns this value, we assume that the contract can now accept the transfer and it understand how to manage ERC-1155 tokens. That’s done!
-        * When the receiving contract returns this value, it is assumed the contract accepts the transfer and knows how to handle the ERC-1155 tokens. Great, no more stuck tokens in a contract!
-      NFT Support: If supply is only 1, treat it as NFT.
-      Safe Transfer Rules: Set of rules for secure transfer.
-        * The transfer call must revert if
-          _to address is 0.
-    * It has a safe transfer function that allows tokens to be reclaimed if they are sent to the wrong address, unlike ERC-20 and ERC-1155
-        * A key difference when using safeTransferFrom is that token transfers to other contracts may revert with the following message:
-          ERC1155: transfer to non ERC1155Receiver implementer
-        * It means that the recipient contract has not registered itself as aware of the ERC1155 protocol, so transfers to it are disabled to prevent tokens from being locked forever
-            * As an example, the Golem contract currently holds over 350k GNT tokens, worth multiple tens of thousands of dollars, and lacks methods to get them out of there.
-            * This has happened to virtually every ERC20-backed project, usually due to user error.
-    * In order for our contract to receive ERC1155 tokens we can inherit from the convenience contract ERC1155Holder which handles the registering for us.
-        * import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-    * Semi-fungible tokens are like general admission concert tickets.
-        * They are interchangeable and can be sold for money before the show (fungible)
-        * But after the show they lose their pre-show value and become collectibles (non-fungible)
-    * The standard provides two functions, balanceOfBatch and safeBatchTransferFrom, that make querying multiple balances and transferring multiple tokens simpler and less gas-intensive.
-    * This is why its balanceOf function differs from ERC20’s and ERC777’s: it has an additional id argument for the identifier of the token that you want to query the balance of.
-        * This is similar to how ERC721 does things, but in that standard a token id has no concept of balance: each token is non-fungible and exists or doesn’t.
-        * The ERC721 balanceOf function refers to how many different tokens an account has, not how many of each. On the other hand, in ERC1155 accounts have a distinct balance for each token id, and non-fungible tokens are implemented by simply minting a single one of them.
-    * use case
-        * blockchain-based decentralized games, as games need coins and collectibles
-        * ERC-1155 can be employed for creating and managing digital art and collectible tokens with different levels of rarity, editions, and properties.
-    * Before
-        * In a game with 100,000 items that means 100,000 smart contracts!
-            * As ERC-1155 developer Witek Radomski pointed out, that's like needing a different phone for each app you use
-            * This means if you wanted to send a sword to one friend, a shield to another, and 100 gold coins to both, you could do so in only one transaction.
-        * This limitation meant that if someone wanted to transfer, say, USDC (ERC-20) and a CryptoKitties NFT (ERC-721), they would need to execute multiple transactions, which was inefficient and expensive.
-        * ERC1155, if a use case needed both ERC20 (fungible) and ERC721 (non-fungible) tokens, then separate contracts were required to achieve this
-    * allows for multiple NFT collections to be launched in just one smart contract instead of creating a different contract for each collection
-    * batch transfer of tokens is also possible instead of transferring a token to a single address in previous standards.
-        * This means that any number of items can be sent in a single transaction to one or more recipients, reducing transaction costs and complexity.
-    * is a multi-token standard that allows the creation of fungible, non-fungible, and semi-fungible tokens all in one contract
-    * It can save costs by managing tokens in batches (approval, transfer and balance) instead of individually
-    * fungibility-agnostic token standard
+
+## erc1155
+* before
+    * problem: game with 100,000 items = 100,000 smart contracts
+        * ERC-1155 developer Witek Radomski pointed out: that's like needing a different phone for each app you use
+        * solution: ERC1155
+            * allows for multiple token collections to be launched in just one smart contract
+* called fungible-agnostic standard
     * allows multiple token to be represented by a single contract, regardless of fungibility
-    * Suppose a developer wants to develop an NFT game. They plan to create one fungible token as the in-game currency and multiple non-fungible tokens for unique in-game assets such as skins, guns, merchandise, etc. If they use ERC-20 and ERC-721 standards, they would have to write new smart contracts to support every new type of asset they create. However, using ERC-1155 would enable them to write just one contract to support all kinds of tokens they want to have in the game.
-    * ERC-1155 Multi Token Standard allows for each token ID to represent a new configurable token type, which may have its own metadata, supply and other attributes.
-    * ERC1155 interface.
-      safeTransferFrom
-      safeBatchTransferFrom
-      balanceOf
-      balanceOfBatch
-      setApprovalForAll
-      isApprovedForAll
-    * Events
-      TransferSingle
-      TransferBatch
-      ApprovalForAll
-      URI
-    * Smart contracts MUST implement all of the functions in the ERC1155TokenReceiver interface to accept transfers.
-        * onERC1155Received
-        * onERC1155BatchReceived
+* allows the creation of fungible, non-fungible, and semi-fungible tokens all in one contract
+    * semi-fungible tokens
+        * possesses characteristics of both fungible and non-fungible tokens
+            * certain units of the token may be interchangeable with other units
+            * others may have distinct characteristics, making them distinguishable from one another
+        * example: trading cards
+            * fungible: can still be traded within the same collection
+            * non-fungible: not completely interchangeable with each other
+* makes use of TokenID
+    * each token ID to represent a new configurable token type, which may have its own metadata, supply and other attributes
+        * supply is only 1 <=> NFT
+* supports secure atomic swaps
+    * all tokens are inside one contract
+* use case
+    * blockchain-based decentralized games, as games need coins and collectibles
+    * creating and managing digital art and collectible tokens with different levels of rarity, editions, and properties
+* can save costs by managing tokens in batches (approval, transfer and balance) instead of individually
+* functions
+    * safeTransferFrom(address _from, address _to, uint256 _id, uint256 _amount, bytes calldata _data)
+        * token transfers to other contracts may revert with the following message: ERC1155: transfer to non ERC1155Receiver implementer
+            * implementation: ERC165 - interface detection
+            * means that the recipient contract has not registered itself as aware of the ERC1155 protocol => transfers to it are disabled
+            * example: Golem contract
+                * currently holds over 350k GNT tokens (multiple tens of thousands of dollars) and lacks methods to get them out of there
+                    * has happened to virtually every ERC20-backed project, usually due to user error
+        * transfer call must revert if: _to address is 0
+    * safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _amounts, bytes calldata _data)
+        * any number of items can be sent in a single transaction to one or more recipients
+        * reducing transaction costs and complexity
+    * balanceOf(address _owner, uint256 _id)
+        * differs from ERC20: has an additional id argument for the identifier of the token that you want to query the balance of
+    * balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids)
+    * setApprovalForAll(address _operator, bool _approved)
+        * intentionally designed with simplicity in mind: can only approve everything for one address
+    * isApprovedForAll(address _owner, address _operator)
+* events
+    * TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value)
+    * TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values)
+    * ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved)
+* must implement all of the functions in the ERC1155TokenReceiver interface to accept transfers
+    * onERC1155Received
+    * onERC1155BatchReceived
+
 * ERC165
     * ERC165 standard is known as the Standard Interface Detection, using which we can publish and detect all interfaces a smart contract implements
     * If standards are developing and evolving over time, then ERC721 version 0.0.1 (a number I just made up) may have an interfaceID of 0x9f40b779 (which is the value of InterfaceID_ERC721 in the contract you provided). However, version 0.0.2 may add, change, or remove a function, which would completely change the interfaceID to something else.
