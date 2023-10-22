@@ -856,110 +856,111 @@
 * decentralization
     * nearly half of the top 20 projects can have their token transfers completely frozen by an owner (a single key or a multisig contract)
         * pausing can be valuable for future upgrades, swaps, and disaster mitigation but also leads to new risks
-* erc20
-    * example: Tether (USDT)
-        * value is pegged to the US dollar at a 1:1 ratio
-        * commonly used to move funds between exchanges quickly and easily
-    * use cases
-        * reputation points of any online platform
-        * lottery tickets and schemes
-        * financial assets such as shares, dividends, and stocks of a company
-        * fiat currencies, including USD
-        * gold ounce
-    * funglible
-    * six functions, two events, and three information
-        * functions
-            1. totalSupply - returns the total supply of tokens that have been created for a particular project
-                * problem: Solidity and the Ethereum Virtual Machine do not support decimals: only integer numbers can be used
-                    * solution: use larger integer values (the EVM supports 256-bit integers)
-                        * example: total supply 1000 tokens, with 18 decimal places (like Ethereum) = 1000*10**18
-                            ```
-                            _mint(msg.sender, 1000 * 10**18); // mining 1000 tokens
-                            transfer(recipient, 2 * 10**18); // sending 2 tokens
-                            ```
-            1. balanceOf - returns the balance of tokens held by a particular address
-            1. transfer - allows an address to send tokens to another address
-                * the only transaction that happens on the blockchain is the contract call
-                * transferring tokens from one account to another = simply update internal variable “_balances”
-                * problem: Solidity and the Ethereum Virtual Machine do not support decimals: only integer numbers can be used
-                    * solution: token contract can use larger integer values (the EVM supports 256-bit integers)
-                        * example: 1000000000000000000 represents 1 ETH (with 18 decimal places)
-                            * transfer of 4000000000000000 will correspond to 0.004ETH being sent
-                        *
-                * token transfers are received at the contract silently
-                    * smart contract does not explicitly notify or acknowledge the receipt of tokens
-                    * solutions
-                        1. ERC223 standard provides the methods that will be called once the tokens are transferred
-                            ```
-                            function transfer(address to, uint value, bytes data) {
-                                    uint codeLength;
-                                    assembly {
-                                        codeLength := extcodesize(_to) // user wallets do not have code associated with them
-                                    }
-                                    balances[msg.sender] = balances[msg.sender].sub(_value);
-                                    balances[_to] = balances[_to].add(_value);
-                                    if(codeLength>0) {
-                                        // Require proper transaction handling.
-                                        ERC223Receiver receiver = ERC223Receiver(_to);
-                                        receiver.tokenFallback(msg.sender, _value, _data);
-                                    }
+
+## erc20
+* example: Tether (USDT)
+    * value is pegged to the US dollar at a 1:1 ratio
+    * commonly used to move funds between exchanges quickly and easily
+* use cases
+    * reputation points of any online platform
+    * lottery tickets and schemes
+    * financial assets such as shares, dividends, and stocks of a company
+    * fiat currencies, including USD
+    * gold ounce
+* funglible
+* six functions, two events, and three information
+    * functions
+        1. totalSupply - returns the total supply of tokens that have been created for a particular project
+            * problem: Solidity and the Ethereum Virtual Machine do not support decimals: only integer numbers can be used
+                * solution: use larger integer values (the EVM supports 256-bit integers)
+                    * example: total supply 1000 tokens, with 18 decimal places (like Ethereum) = 1000*10**18
+                        ```
+                        _mint(msg.sender, 1000 * 10**18); // mining 1000 tokens
+                        transfer(recipient, 2 * 10**18); // sending 2 tokens
+                        ```
+        1. balanceOf - returns the balance of tokens held by a particular address
+        1. transfer - allows an address to send tokens to another address
+            * the only transaction that happens on the blockchain is the contract call
+            * transferring tokens from one account to another = simply update internal variable “_balances”
+            * problem: Solidity and the Ethereum Virtual Machine do not support decimals: only integer numbers can be used
+                * solution: token contract can use larger integer values (the EVM supports 256-bit integers)
+                    * example: 1000000000000000000 represents 1 ETH (with 18 decimal places)
+                        * transfer of 4000000000000000 will correspond to 0.004ETH being sent
+                    *
+            * token transfers are received at the contract silently
+                * smart contract does not explicitly notify or acknowledge the receipt of tokens
+                * solutions
+                    1. ERC223 standard provides `tokenFallback` method that will be called once the tokens are transferred
+                        ```
+                        function transfer(address to, uint value, bytes data) {
+                                uint codeLength;
+                                assembly {
+                                    codeLength := extcodesize(_to) // user wallets do not have code associated with them
                                 }
-                            ```
-                        1. approve plus transferFrom mechanism
-                            * example
-                                ```
-                                contract DEX {
-                                    Erc20 public token;
-
-                                    constructor(address _tokenAddress) {
-                                        token = Erc20(_tokenAddress);
-                                    }
-
-                                    function tradeTokens(address _buyer, uint256 _amount) external {
-                                        // Assume _amount is the number of tokens the buyer wants to purchase
-                                        require(token.transferFrom(_buyer, address(this), _amount), "Token transfer failed");
-                                        // DEX now holds _amount of tokens
-
-                                        // Perform trading logic here
-                                        // ...
-                                    }
+                                balances[msg.sender] = balances[msg.sender].sub(_value);
+                                balances[_to] = balances[_to].add(_value);
+                                if(codeLength>0) {
+                                    // Require proper transaction handling.
+                                    ERC223Receiver receiver = ERC223Receiver(_to);
+                                    receiver.tokenFallback(msg.sender, _value, _data);
                                 }
-                                ```
-            1. approve - allows an address to approve another address to spend tokens on their behalf
-                * used by decentralized exchanges
-                * front-running approval attack
-                    * problem: you change your approve amount to a given contract
-                        * example: reduce the amount approved from 1 ETH to 0.5 ETH
-                            * approved contract can race to transfer the money you initially approved (the 1 ETH)
-                                * and then also spend the money you just approved (0.5 ETH)
-                    * solutions
-                        1. use the increaseApproval() or decreaseApproval() functions
-                        1. ensures that, before updating the value, it should be set to zero
+                            }
+                        ```
+                    1. approve plus transferFrom mechanism
+                        * example
                             ```
-                            require(_value == 0 || allowed[msg.sender][_spender] == 0);
+                            contract DEX {
+                                Erc20 public token;
+
+                                constructor(address _tokenAddress) {
+                                    token = Erc20(_tokenAddress);
+                                }
+
+                                function tradeTokens(address _buyer, uint256 _amount) external {
+                                    // Assume _amount is the number of tokens the buyer wants to purchase
+                                    require(token.transferFrom(_buyer, address(this), _amount), "Token transfer failed");
+                                    // DEX now holds _amount of tokens
+
+                                    // Perform trading logic here
+                                    // ...
+                                }
+                            }
                             ```
-            1. transferFrom - allows an address to transfer tokens from another address that has approved them to do so
-                * prerequisite: approver must have called the approve() function prior
-                * if called from within a Solidity contract recommended to enclose with require
-                    ```
-                    require(ERC20.transferFrom(from, to, value)) // in case of any transfer failure, the transaction should revert
-                    ```
-            1. allowance - returns the amount of tokens that an approved address can spend on behalf of another address
-            * developers can also add additional functions and features
-                * example: OpenZeppelin implementation of ERC20 contracts
-                    * more functions such as _mint(), _burn(), and _burnFrom()
-        * information
-            1. name - returns the name of the token
-            1. symbol - returns the symbol of the token
-                * usually a few letters or characters that represent the token
-            1. decimals - returns the number of decimal places that the token can be divided into
-                * example: a token with 18 decimal places can be divided into 10^18 units
-        * event
-            * transfer(address indexed _from, address indexed _to, uint256 _value)
-                * triggered whenever tokens are transferred
-                * minting emits transfer event with the 0 address as the source
-            * approval(address indexed _owner, address indexed _spender, uint256 _value)
-                * triggered on any call to approve() function
+        1. approve - allows an address to approve another address to spend tokens on their behalf
+            * used by decentralized exchanges
+            * front-running approval attack
+                * problem: you change your approve amount to a given contract
+                    * example: reduce the amount approved from 1 ETH to 0.5 ETH
+                        * approved contract can race to transfer the money you initially approved (the 1 ETH)
+                            * and then also spend the money you just approved (0.5 ETH)
+                * solutions
+                    1. use the increaseApproval() or decreaseApproval() functions
+                    1. ensures that, before updating the value, it should be set to zero
+                        ```
+                        require(_value == 0 || allowed[msg.sender][_spender] == 0);
+                        ```
+        1. transferFrom - allows an address to transfer tokens from another address that has approved them to do so
+            * prerequisite: approver must have called the approve() function prior
+            * if called from within a Solidity contract recommended to enclose with require
+                ```
+                require(ERC20.transferFrom(from, to, value)) // in case of any transfer failure, the transaction should revert
+                ```
+        1. allowance - returns the amount of tokens that an approved address can spend on behalf of another address
+        * developers can also add additional functions and features
+            * example: OpenZeppelin implementation of ERC20 contracts
+                * more functions such as _mint(), _burn(), and _burnFrom()
+    * information
+        1. name - returns the name of the token
+        1. symbol - returns the symbol of the token
+            * usually a few letters or characters that represent the token
+        1. decimals - returns the number of decimal places that the token can be divided into
+            * example: a token with 18 decimal places can be divided into 10^18 units
+    * event
+        * transfer(address indexed _from, address indexed _to, uint256 _value)
+            * triggered whenever tokens are transferred
+            * minting emits transfer event with the 0 address as the source
+        * approval(address indexed _owner, address indexed _spender, uint256 _value)
+            * triggered on any call to approve() function
 * erc721
     * Let’s understand what can ERC-721 represents:
       - A unique digital content piece.
