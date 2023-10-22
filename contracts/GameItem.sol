@@ -6,6 +6,9 @@ import {ERC721URIStorage, ERC721} from "@openzeppelin/contracts@5.0.0/token/ERC7
 import {ERC721Enumerable} from "@openzeppelin/contracts@5.0.0/token/ERC721/extensions/ERC721Enumerable.sol";
 import {AccessControl} from "@openzeppelin/contracts@5.0.0/access/AccessControl.sol";
 
+// contract ABC is ERC721, ERC721Enumerable, ERC721Metadata
+// ERC721URIStorage: A more flexible but more expensive way of storing metadata.
+// IERC721Metadata: Optional extension that adds name, symbol, and token URI, almost always included.
 contract GameItem is ERC721URIStorage, ERC721Enumerable, AccessControl {
 
     bytes32 public immutable ADMIN_ROLE = keccak256("ADMIN_ROLE");
