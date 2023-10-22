@@ -825,10 +825,19 @@
                 * aren’t interchangeable as they all have different cuts, colours and sizes
                 * can’t swap one diamond for another because they won’t be guaranteed to hold the same value
 * history
-    * coin is a digital asset which is native to its blockchain
     * Bitcoin established the paradigm for other crypto projects: in order to issue any digital currency, a separate blockchain must be launched
         * rule has been broken by Ethereum: smart contacts enabled to create a token and assign it unique useful functions within your own application
     * ability for any developer to release their digital asset without the need for a separate blockchain has become a turning point in the history of cryptocurrencies
+    * coin
+        * native digital asset or cryptocurrency of a blockchain
+        * example:
+            * bitcoin blockchain => bitcoin (symbol: BTC)
+            * ethereum blockchain => ether (symbol: ETH)
+    * token
+        * digital asset or cryptocurrency that is built on top of an existing blockchain is called a token
+        * example (ERC20-compliant tokens built on the Ethereum blockchain)
+            * Maker (symbol: MKR)
+            * Augur (symbol: REP)
 * problem: supporting an increasing number of tokens became increasingly difficult
     * in order for the exchange or wallet to support the token, the creators had to write new code each time
     * example: prior to ERC-20,there was a problem with token compatibility because each of them had a unique smart contract
@@ -911,6 +920,17 @@
                             ```
         1. approve - allows an address to approve another address to spend tokens on their behalf
             * used by decentralized exchanges
+                * there are two types of exchanges
+                    * centralized exchange
+                        * example: Binance
+                        * you have to send your cryptocurrency coin or token to the exchange's account
+                            * then they allow you to trade on their platform
+                        * trust issue: coins and tokens are held on an exchange's account
+                            * if the exchange's account is hacked, you will lose your cryptocurrencies
+                    * decentralized exchange
+                        * example: Uniswap
+                        * all coins/token are kept in your wallet only
+                        * directly trade via exchange platform
             * front-running approval attack
                 * problem: you change your approve amount to a given contract
                     * example: reduce the amount approved from 1 ETH to 0.5 ETH
@@ -1196,50 +1216,6 @@
             * if a contract doesn't support ERC721 (as indicated by the supportsInterface call), OpenSea will handle it differently
 
 ## openzeppelin
-* “ The following is an example of enclosing a token transfer call and an approve call within the require() function:”
-  * “require(ERC20(tokenAddress).transferFrom(from, to, value));”
-  * “OpenZeppelin provides the SafeERC20.sol contract to ensure the safety of these calls; it is helpful to protect the contract from unintended behavior.”
-* “ReentrancyGuard: Using the nonReentrant modifier in the buyTokens() function to prevent reentrancy attacks.
-* “By using the WhitelistCrowdsale.sol contract, you can allow ether to be received from known/whitelisted addresses; other addresses cannot send ether to the contract”
-* “Let's look at where these contracts can be used:
-  * validation/CappedCrowdsale.sol: A crowdsale with an upper limit for the total wei or ether contribution also known as hard-cap
-  * validation/IndividuallyCappedCrowdsale.sol: A crowdsale with individually capped upper limit of wei investments
-  * validation/PausableCrowdsale.sol: Allows investment only when it isn't paused by PauserRole
-  * validation/TimedCrowdsale.sol: A crowdsale that opens and accept ether for a specified duration of time
-  * distribution/FinalizableCrowdsale.sol: Allows a special action to be triggered when crowdsale is over
-  * distribution/PostDeliveryCrowdsale.sol: A crowdsale that allows its investors to withdraw their tokens only after it finishes
-  * emission/AllowanceCrowdsale.sol: A crowdsale in which another wallet contains tokens and allowance is provided to the crowdsale contract so that it can deliver the tokens to the investors
-  * emission/MintedCrowdsale.sol: A crowdsale in which new tokens are minted only when investors send ether to the contract
-  * price/IncreasingPriceCrowdsale.sol: A crowdsale that increases the rate of the token linearly according to the time”
-* “When all of the tokens that have been created on the Ethereum blockchain follow the same standard APIs, it becomes easy for different web and mobile cryptocurrency wallets to support these tokens”
-* “The cryptocurrency exchanges support trading of tokens on their exchange”
-  * “If all of the tokens support this ERC20 standard, it would be easy for these exchanges to integrate and it would support trading.”
-  * “Apart from the cryptocurrency wallets and exchanges, it is also easy for a decentralized exchange to support these standard tokens as they would have to call the ERC20 standard APIs from their smart contracts”
-    * “For example, EtherDelta, IDEX, and KyberNetwork are some decentralized exchanges built on top of Ethereum blockchain and they support trading of ERC20 tokens.”
-* “The ERC20 standard only defines the interface APIs—the implementation should be written according to your needs”
-  * “The most updated and best place to look for the ERC20 implementation is the OpenZeppelin library of Solidity smart contracts”
-* “allowed is a nested mapping of two Solidity mapping data types. In the ERC20 standard specification, it is possible for a token holder, X, to assign some allowances to another account, Y, so that Y is allowed to take the approved number of tokens from the token balance of X”
-* “The developers must know that there are two types of transfer() functions.”
-  * “One is used on the address data types to transfer the ether to that address from the contract”
-    * “address(toAddress).transfer(amount);”
-  * “The second type is the function defined by the ERC20 standard.”
-    * “ERC20(TKNContractAddress).transfer(toAddress, amount);”
-* “Coin: A native digital asset or cryptocurrency of a blockchain is called a coin. For example, the bitcoin blockchain has its native cryptocurrency asset, bitcoin (symbol: BTC). The Ethereum blockchain has its native cryptocurrency asset, ether (symbol: ETH), which is required in the blockchain to perform any transaction.”
-* “Token: A digital asset or cryptocurrency that is built on top of an existing blockchain is called a token. For example, Maker (symbol: MKR) and Augur (symbol: REP) are ERC20-compliant tokens and are built on the Ethereum blockchain using Solidity smart contracts.”
-* “There are two types of exchanges:”
-  * “Centralized Exchange: On a centralized exchange, you have to send your cryptocurrency coin or token to the exchange's account. Then, they allow you to trade on their platform.”
-    * “As the coins and tokens are held on an exchange's account, there might be a trust issue.”
-    * “It is also possible that if the exchange's account is hacked, you will lose your cryptocurrencies”
-    * “Binance and Bitfinex are some examples of centralized exchanges”
-  * “Decentralized Exchange: On a decentralized exchange, you do not have to send your cryptocurrency coin or token to exchange's account.”
-    * y“our coins are kept in your wallet only.”
-    * “Instead, you directly trade via exchange platform; coins aren't even kept on the exchange platform”
-    * “KyberNetwork, IDEX, and EtherDelta are some of the decentralized exchanges that are available for P2P trading.”
-* “Ethereum has its own native currency, ether, which is not ERC20-compliant.”
-* https://nfting.medium.com/the-history-of-cryptokitties-ethereums-first-official-gaming-application-499729e50794
-* https://betterprogramming.pub/cryptokitties-smart-contract-breakdown-2c3c250d33f6
-* https://spectrum.ieee.org/cryptokitties
-* OpenZeppelin
-    * is an open-source library of protocols, templates, & utilities for smart contract development
-    * includes implementations for token standards, flexible role-based permissioning schemes, & reusable components
-    * OpenZeppelin library offers implementations for ERC20 , ERC721, & ERC1155
+* an open-source library of protocols, templates, & utilities for smart contract development
+* includes implementations for token standards, flexible role-based permissioning schemes, & reusable components
+    * in particular: offers implementations for ERC20 , ERC721, & ERC1155
