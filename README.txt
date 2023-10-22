@@ -109,6 +109,8 @@
     * https://medium.com/textileio/whats-really-happening-when-you-add-a-file-to-ipfs-ae3b8b5e4b0f
     * https://medium.com/textileio/how-ipfs-peer-nodes-identify-each-other-on-the-distributed-web-8b5b6476aa5e
     * https://medium.com/@Nico_Vergauwen/create-your-own-ethereum-token-part-2-erc223-3076f764cf62
+    * https://ethereum.stackexchange.com/questions/120996/what-is-the-difference-between-safetransferfrom-and-transferfrom-functions-i
+    * https://ethereum.stackexchange.com/questions/73125/what-is-the-bytes-data-param-in-safetransferfrom
 
 ## best practices
     * don't use plain secret on-chain
@@ -797,31 +799,6 @@
             * distinction between storing a hash on the blockchain and storing the data on the blockchain becomes somewhat blurred
             * example: store an IPFS link in the blockchain
                 * we can seamlessly follow this link to access the data as if the data was stored in the blockchain itself
-    * problem: centralized nft
-        * returns the metadata location in the form of: `HTTP://centralizedserver.com/TokenID`
-            * here is nothing stopping the image host from changing the image which the URL points to
-        * solution: IPFS
-            * problem: cannot set `ipfs://contendidentifierhash/TokenID`
-                * IPFS can only provide an immutable hierarchical file system structure
-                * requirement: all tokens and TokenIDs are set at the time of the smart contract deployment
-                * solution: TokenID as a pointer itself to the metadata
-                    * `TokenID=IPFScontentidentifierhash`
-                    * idea by Titusz Pan
-                    * we would then just add "ipfs://" in front
-                    * example
-                        ```
-                        $ ipfs add MetaDataIPFSToken.json cid-version=1 hash=blake2b-208
-                        added bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a MetaDataIPFSToken.json
-                        ```
-                        then convert it to hex “-b=base16”
-                        ```
-                        $ ipfs cid format -b=base16 bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a
-                        f01559ae4021a99b0d373d7bc8a80504bad782367abe12c21373c83adc6bf6a7e
-                        ```
-                        without f0 gives a token ID
-                        ```
-                        constructor() public ERC1155("ipfs://f0{id}") { // "f0" is not part of the CID, but rather a representation of the format being used (base16)
-                        ```
 
 ## tokens
 * any asset that is digitally transferable between two people
@@ -833,14 +810,20 @@
 * types
     * fungible asset
         * means that the individual units of an asset are interchangeable and essentially indistinguishable from one another
+        * not unique and divisable entity
         * example: currency
             * $50 is always $50
     * non-fungible asset
         * means that the individual units of an asset are distinct and unique
             * often possessing specific attributes, characteristics, or properties that set them apart from one another
             * cannot be exchanged on a one-to-one basis
-        * example: education and certification
-            * Einstein diploma is not the same as Oppenheimer diploma
+        * unique and indivisible entity
+        * examples
+            1. education and certification
+                * Einstein diploma is not the same as Oppenheimer diploma
+            1. diamonds
+                * aren’t interchangeable as they all have different cuts, colours and sizes
+                * can’t swap one diamond for another because they won’t be guaranteed to hold the same value
 * history
     * coin is a digital asset which is native to its blockchain
     * Bitcoin established the paradigm for other crypto projects: in order to issue any digital currency, a separate blockchain must be launched
@@ -948,7 +931,7 @@
         1. allowance - returns the amount of tokens that an approved address can spend on behalf of another address
         * developers can also add additional functions and features
             * example: OpenZeppelin implementation of ERC20 contracts
-                * more functions such as _mint(), _burn(), and _burnFrom()
+                * _mint(), _burn(), _burnFrom(), etc
     * information
         1. name - returns the name of the token
         1. symbol - returns the symbol of the token
@@ -961,139 +944,167 @@
             * minting emits transfer event with the 0 address as the source
         * approval(address indexed _owner, address indexed _spender, uint256 _value)
             * triggered on any call to approve() function
-* erc721
-    * Let’s understand what can ERC-721 represents:
-      - A unique digital content piece.
-      - Real estate property.
-      - Social media content Tweets, Videos, and pictures.
-      - Gaming assets and collectibles.
-      - Gaming characters.
-    * Under ERC-721, each NFT also has a numerical identifier (uint256) called TokenID. Each contract address-TokenID pair must be unique. This practically ensures that NFTs remain unique even if they come from the same smart contract. It’s also how NFT collections can be created – the entire collection comes from a single ERC-721 contract, with each item having its own TokenID.
-    * An ERC721 token represents a class of assets, whereas an ERC20 token represents a particular type of asset.
-    * For example, a domain name is a non-fungible asset because there cannot be another domain name of the same sort due to its unique aspects. Thus, non-fungible tokens represent a single, unique and indivisible entity, whether physical or immaterial, such as intellectual property or photograph.
-    * Through royalty implementations in the smart contract, original creators can receive a predetermined percentage of sales whenever the NFT changes hands.
-    * Core Functionalities of an NFT Smart Contract
-        * Minting NFTs
-            * it creates a fresh, unique token within the contract
-            * Minting can be restricted to certain addresses to prevent unauthorized creation of tokens.
-        * Transferring NFTs
-            * Approving: This grants permission for another address to transfer an NFT on behalf of the owner.
-            * Safe Transfers: These functions ensure the destination address can handle the NFT, preventing accidental loss.
-        * Burning NFTs
-            * Burning removes an NFT from existence, reducing the total supply
-        * Accessing NFT Metadata
-            * The URI (Uniform Resource Identifier) function in a smart contract points to this metadata, allowing platforms and wallets to display the NFT’s distinct attributes.
-        * example: https://example.com/nft/1
-            ```
-            {
-              "name": "One Ring to Rule Them All",
-              "description": "The One Ring, forged in the fires of Mount Doom, grants immense power to its bearer.",
-              "image": "https://example.com/one_ring.jpg",
-              "attributes": [
-                {
-                  "trait_type": "Type",
-                  "value": "Artifact"
-                },
-                {
-                  "trait_type": "Rarity",
-                  "value": "Legendary"
-                },
-                {
-                  "trait_type": "Power",
-                  "value": "Dominion over all other rings"
-                },
-                {
-                  "trait_type": "Owner",
-                  "value": "Sauron"
-                }
-              ],
-              "external_url": "https://example.com/one_ring",
-              "franchise": "The Lord of the Rings",
-              "lore": "Forged by the Dark Lord Sauron to control the other Rings of Power, the One Ring is a malevolent artifact of great evil."
-            }
 
+## erc721
+* example: domain name
+* use cases
+    * unique digital content piece
+        * through royalty implementations in the smart contract, original creators can receive a predetermined percentage of sales whenever the NFT changes hands
+    * real estate property
+    * social media content Tweets, Videos, and pictures
+    * gaming assets and collectibles
+    * gaming characters
+* non-fungible
+    * each NFT has a numerical identifier (uint256) called TokenID
+* is a digital receipt of something you purchased
+    * digital certificates of authenticity
+    * example: when you buy an NFT, you are buying a piece of data that points to a server that hosts that image
+        * so, what you own, is not the access to the server, and not the image itself, but rather that tiny piece of data that points to the server
+* represents a class of assets, whereas an ERC20 token represents a particular type of asset
+    * entire collection comes from a single ERC-721 contract, with each item having its own TokenID
+* smart contracts define the ownership and transfer rights of a particular digital asset
+* functions
+    * erc20 like
+        * balanceOf(address _owner)
+        * transferFrom(address _from, address _to, uint256 _tokenId)
+        * approve(address _approved, uint256 _tokenId)
+        * setApprovalForAll(address _operator, bool _approved)
+        * getApproved(uint256 _tokenId)
+        * isApprovedForAll(address _owner, address _operator)
+    * function ownerOf(uint256 _tokenId)
+    * function safeTransferFrom(address _from, address _to, uint256 _tokenId)
+        * ensure the destination address can handle the NFT, preventing accidental loss
+        * is used to check if the address receiving the token is an ERC-721 receiver or not
+            * ERC721TokenReceiver
+                * minimal acceptable feature for onERC721Received is to do nothing and this is how they have implemented it
+            * goal is to ensure that your NFT does not get locked up in an address from which you can never retrieve it
+    * function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes _data)
+        * allows for additional data to be passed to the receiving contract
+        * example
             ```
-    * At the heart of NFTs lies smart contract development
-    * Smart contracts play a critical role in the development and transfer of NFTs.
-        * In the context of NFTs, smart contracts define the ownership and transfer rights of a particular digital asset, and they ensure that these rights are upheld throughout the lifetime of the asset.
-    * Until the invention of the blockchain, most digital items couldn’t be non-fungible. Anybody could copy/save digital items (pictures, music, artwork) and you had no way of deciphering which one was the original or who owned what.
-    * An NFT is a digital receipt of something you purchased
-    * This uniqueness is defined by 4 main characteristics:
-        * The sole creator
-            * When the NFT is created, the creator will come and “sign” it
-            * Indeed, by interacting with a “smart contract” (contract on a blockchain) the creator will initiate an event on a blockchain, which will allow time stamping and creating the NFT in an unalterable way.
-            * To give you a more meaningful image of this signature via the blockchain, you can think of it as the equivalent of a painter’s signature on a canvas.
-        * The unalterable identifier
-            * The equivalent of the NFT’s identity card number is its identifier.
-            * It is this sequence of numbers or letters, unmodifiable and unalterable, that will identify an NFT on a blockchain.
-            * To draw a parallel with the physical world, this corresponds to a unique serial number.
-        * Its content
-            * Identifier and content of the NFT are two distinct elements
-                * The identifier is defined at creation and is unalterable, which is what will be certain of the “identity” of the NFT
-                * The content is also defined during creation but it can be totally or partially modified.
-        * The current owner
-            * Indeed, the last owner of the NFT will be known through the transfer between two blockchain wallets
-            * It is thus possible to know all the owners in chronological order by using time-stamped blockchain transfers.
-    * NFT is a type of digital token or asset
-    * When you buy an NFT, you are buying a piece of data that points to a server that hosts that image.
-        * So, what you own, is not the access to the server, and not the image itself, but rather that tiny piece of data that points to the server.
-    * NFT stands for non-fungible token
-        * the term ‘non-fungible’ denotes non-exchangeable, i.e. fully unique
-        * a $100 dollar bill, which is a fungible asset since anybody may exchange their $100 bill for another $100 bill without issue
-        * There have been reports of $1 notes with extremely uncommon serial numbers being traded for thousands of dollars.
-        * For example, money is fungible, diamonds aren’t
-            * Diamonds aren’t interchangeable as they all have different cuts, colours and sizes
-            * You can’t swap one diamond for another because they won’t be guaranteed to hold the same value.
-    * NFTs are digital assets that represent ownership or proof of authenticity of a unique item or piece of content, such as artwork, music, videos, or virtual real estate
-    * NFTs are essentially digital certificates of authenticity
-        * used to prove ownership of digital data, or to label anything in the digital world as your own.
-    * example: a work of art, such as a painting
-    * use cases
-        * Art
-            * most highly publicized examples of NFTs have been in visual art, especially videos and still images that have sold for millions of dollars
-        * Collectibles
-            * NFT technology has also proved a fit for digital versions of other collectibles, such as trading cards
-            * Sports leagues including the NFL, MLB and NBA have all created digital collections memorializing things such as notable statistics and outstanding plays.
-        * Gaming and virtual reality
-            * NFTs can be attached to some unique video game items such as weapons, outfits or special characters — many of which have long been sold and traded in in-game marketplaces
-            * when their digital assets can be transferred between games or platforms, or traded on open markets, they will invest more of their hard-earned cash
-        * Licenses and Certifications
-            * NFT use cases can also provide significant benefits for licensing and certification verification
-            * Course completion certificates, like any other diploma or license, are typically offered to successful applicants in digital or paper form
-            * Universities and employers require replicas of the course completion document as references before offering a position to someone in a company or institute.
-    * Where to buy NFTs
-        * OpenSea
-            * Refers to itself as the “amazon of NFTs”, this marketplace has a large and wide variety of different types of NFTs consumers may want to investigate.
-    * NFTs and blockchain ledgers give content creators and artists an opportunity to monetize their projects without the physical resources needed to do that in the real world.
-        * For example, artists don’t have to rely on gallery shows or live auctions to be able to sell their art.
-    * with NFTs, “copies” are worthless because they aren’t the original, and anybody can verify that
-    * It was not possible to authenticate a digital ‘asset’ prior to the advent of NFT technology on a blockchain
-    * Apart from being identifiable, NFTs carry other unique characteristics such as being indivisible, tradeable, fraud proof, scarce, and programmable.
-        * NFT creators can specify that royalties be paid to them whenever an NFT changes hands
-    * “ERC721 is a Non-Fungible Token (NFT) standard”
-      * “This standard is used in many cases where you want to transfer a whole item that cannot be broken into multiple parts, for example, a house deed or collectible cards”
-      * “As you can see in the code, the ERC721 interface also inherits from the ERC165 standard.”
-      * “The ERC165 standard is known as the Standard Interface Detection, using which we can publish and detect all interfaces a smart contract implements”
-      * In the OpenZeppelin implementation of the ERC721 standard, there are two approval mechanisms: tokenApprovals and operatorApprovals
-        * tokenApprovals:
-          * mapping(uint256 => address) internal _tokenApprovals;
-          * This is a mapping from a token ID to an approved address.
-          * It allows a specific address to transfer the ownership of a specific token.
-          * It is used for one-time approvals and is cleared after the transfer is completed.
-        * operatorApprovals
-          * mapping(address => mapping(address => bool)) internal _operatorApprovals;
-          * This is a mapping from an owner address to an operator address to a boolean value.
-          * It allows an operator to manage (transfer or perform other operations) any tokens owned by the approved owner.
-          * This approval is persistent until explicitly revoked.
-      * “The transferFrom() function is a public function, used to transfer the given tokenId from the owner's account to the receiver's account. For this function to work, the approval must have been given previously by the owner to the address of the caller of this function.
-        * “require(_isApprovedOrOwner(msg.sender, tokenId));”
-      * “The safeTransferFrom() function is a public function that is used to safely transfer the NFT from the owner's account to the recipient account.”
-        * “safely transfer means that, when a recipient is a contract, you need to ensure that the recipient contract has callbacks registered to let the receiver contract get a notification when ERC721 token transfer is successful”
-        * “require(_checkOnERC721Received(from, to, tokenId, _data))”
-        * “it makes a call to the _checkOnERC721Received() internal function, which further calls the “callback functions (the onERC721Received() function on the contract receiving the token) in case the recipient of the NFT is a contract (not an Externally Owned Account (EOA)).”
-        * “You can pass on the function bytes data into the safeTransferFrom() function in the _data argument”
-          * “When this _data parameter is not empty, the further function call will be initiated from the receiver's onERC721Received() function”
-      * “contract ABC is ERC721, ERC721Enumerable, ERC721Metadata”
+            { // _data
+              "rarity": "Rare",
+              "strength": 80,
+              "abilities": ["Flying", "Fire Breath"]
+            }
+            ```
+            then
+            ```
+            contract MyCardRegistry {
+                struct CardAttributes {
+                    string rarity;
+                    uint256 strength;
+                    string[] abilities;
+                }
+
+                mapping(uint256 => CardAttributes) public cardAttributes;
+
+                function parseDataToCardAttributes(bytes calldata _data) internal pure returns (CardAttributes memory) {
+                    // Parse JSON data
+                    (string memory rarity, uint256 strength, string[] memory abilities) = abi.decode(_data, (string, uint256, string[]));
+
+                    return CardAttributes({
+                        rarity: rarity,
+                        strength: strength,
+                        abilities: abilities
+                    });
+                }
+
+                function onCardReceived(address _sender, uint256 _cardId, bytes calldata _data) external returns (bool) {
+                    // Parse the _data and update cardAttributes with the received attributes
+                    CardAttributes memory attributes = parseDataToCardAttributes(_data);
+
+                    // Add the card to the registry
+                    cardAttributes[_cardId] = attributes;
+
+                    return true;
+                }
+            }
+            ```
+        * developers can also add additional functions and features
+            * example: OpenZeppelin implementation of ERC721 contracts
+                * tokenApprovals, operatorApprovals, etc
+* information
+    * erc20 like
+        * name()
+        * symbol()
+    * tokenURI(tokenId)
+        * points to the metadata
+        * allowing platforms and wallets to display the NFT’s distinct attributes
+        * problem: centralized nft
+            * returns the metadata location in the form of: `HTTP://centralizedserver.com/TokenID`
+                * here is nothing stopping the image host from changing the image which the URL points to
+                    * example: https://example.com/nft/1
+                        ```
+                        {
+                          "name": "One Ring to Rule Them All",
+                          "description": "The One Ring, forged in the fires of Mount Doom, grants immense power to its bearer.",
+                          "image": "https://example.com/one_ring.jpg",
+                          "attributes": [
+                            {
+                              "trait_type": "Type",
+                              "value": "Artifact"
+                            },
+                            {
+                              "trait_type": "Rarity",
+                              "value": "Legendary"
+                            },
+                            {
+                              "trait_type": "Power",
+                              "value": "Dominion over all other rings"
+                            },
+                            {
+                              "trait_type": "Owner",
+                              "value": "Sauron"
+                            }
+                          ],
+                          "external_url": "https://example.com/one_ring",
+                          "franchise": "The Lord of the Rings",
+                          "lore": "Forged by the Dark Lord Sauron to control the other Rings of Power, the One Ring is a malevolent artifact of great evil."
+                        }
+                        ```
+            * solution: IPFS
+                * problem: cannot set `ipfs://contendidentifierhash/TokenID`
+                    * IPFS can only provide an immutable hierarchical file system structure
+                    * requirement: all tokens and TokenIDs are set at the time of the smart contract deployment
+                    * solution: TokenID as a pointer itself to the metadata
+                        * `TokenID=IPFScontentidentifierhash`
+                        * idea by Titusz Pan
+                        * we would then just add "ipfs://" in front
+                        * example
+                            ```
+                            $ ipfs add MetaDataIPFSToken.json cid-version=1 hash=blake2b-208
+                            added bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a MetaDataIPFSToken.json
+                            ```
+                            then convert it to hex “-b=base16”
+                            ```
+                            $ ipfs cid format -b=base16 bafkzvzacdkm3bu3t266ivacqjowxqi3hvpqsyijxhsb23rv7nj7a
+                            f01559ae4021a99b0d373d7bc8a80504bad782367abe12c21373c83adc6bf6a7e
+                            ```
+                            without f0 gives a token ID
+                            ```
+                            constructor() public ERC1155("ipfs://f0{id}") { // "f0" is not part of the CID, but rather a representation of the format being used (base16)
+                            ```
+* events
+    * erc20 like
+        * event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+        * event Approval(address indexed _owner, address indexed _approved, uint256 indexed _tokenId);
+    * event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+* case studies
+    * art
+        * artists don’t have to rely on gallery shows or live auctions to be able to sell their art
+            * monetize their projects without the physical resources needed to do that in the real world
+    * collectibles
+        * sports leagues including the NFL, MLB and NBA have all created digital collections
+    * gaming and virtual reality
+        * players will invest more when digital assets can be
+            * transferred between games or platforms
+            * traded on open markets, they will invest more of their hard-earned cash
+    * licenses and certifications
+        * easily verifiable with university smart contract
+* OpenSea
+    * refers to itself as the "amazon of NFTs"
+    * has a large and wide variety of different types of NFTs
 * erc1155
     * Technically, we called it the fungible-agnostic standard because the interface can handle both fungible and non-fungible tokens in a single contract “natively” without any kind of hack
         * Fungible-agnostic means the quality to be both fungible (breakable into small units and thus interchangeable) and non-fungible (atomic, non-breakable a.k.a NFTs)
@@ -1172,6 +1183,7 @@
         * onERC1155Received
         * onERC1155BatchReceived
 * ERC165
+    * ERC165 standard is known as the Standard Interface Detection, using which we can publish and detect all interfaces a smart contract implements
     * If standards are developing and evolving over time, then ERC721 version 0.0.1 (a number I just made up) may have an interfaceID of 0x9f40b779 (which is the value of InterfaceID_ERC721 in the contract you provided). However, version 0.0.2 may add, change, or remove a function, which would completely change the interfaceID to something else.
         * So as long as you specify that your contract complies to ERC721 0.0.1, someone else can look up the interface, and check it against your contract.
     * So the very short answer to your question is, you shouldn't be checking supportsInterface against a single function, but rather against the whole interface.
