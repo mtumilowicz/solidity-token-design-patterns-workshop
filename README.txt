@@ -1157,35 +1157,43 @@
     * onERC1155Received
     * onERC1155BatchReceived
 
-* ERC165
-    * ERC165 standard is known as the Standard Interface Detection, using which we can publish and detect all interfaces a smart contract implements
-    * If standards are developing and evolving over time, then ERC721 version 0.0.1 (a number I just made up) may have an interfaceID of 0x9f40b779 (which is the value of InterfaceID_ERC721 in the contract you provided). However, version 0.0.2 may add, change, or remove a function, which would completely change the interfaceID to something else.
-        * So as long as you specify that your contract complies to ERC721 0.0.1, someone else can look up the interface, and check it against your contract.
-    * So the very short answer to your question is, you shouldn't be checking supportsInterface against a single function, but rather against the whole interface.
-    * The idea is that anyone can find the specification for the interface, and just check the interfaceID of that interface against your contract.
-    * play a vital role in enabling seamless interactions between smart contracts and DApps
-    * before
-        * determining a smart contract’s supported interfaces was a challenging and gas-consuming process
-        * some interaction might involve sending test transactions to the contract and observing the behavior
-            * if the contract didn't support the desired interface, the transaction would fail or return an unexpected result
-    * address the need for a standardized way of querying smart contracts to determine which interfaces or functionalities they support
-    * interfaces are not explicitly represented on the blockchain
-        * used by developers during the coding and development process
-        * applications must usually simply trust they are not making an incorrect call
-            * contract declaring its interface can be very helpful in preventing errors
+## ERC165
+* before
+    * determining a smart contract’s supported interfaces was a challenging and gas-consuming process
+    * some interaction might involve sending test transactions to the contract and observing the behavior
+        * if the contract didn't support the desired interface, the transaction would fail or return an unexpected result
+* problem: interfaces
+    * are not explicitly represented on the blockchain
+    * used by developers during the coding and development process
+    * applications must usually simply trust they are not making an incorrect call
+        * contract declaring its interface can be very helpful in preventing errors
+    * solution: ERC165
+* known as the Standard Interface Detection
+* we can publish and detect all interfaces a smart contract implements
     * accounts simply declare their interfaces
         * they are not required to actually implement them
         * must not be relied on for security
-    * is a standard to detect and publish what interfaces a smart contract implements
-    * it is sometimes useful to query whether a contract supports the interface and if yes, which version of the interface, in order to adapt the way in which the contract is to be interacted with
-    * interface has a single selector that can be calculated from the functions it implements
-        * is defined as the XOR of all function selectors
-        * `type(interface).interfaceId` returns the same as the interface selector
-    * use case
-        * we want to interact with a contract but we don't know if it supports an interface such as ERC20 or ERC721
+    * example
+        * publish
+            ```
+            contract MyContract is ERC165 {
+                function supportsInterface(bytes4 interfaceID) external view override returns (bool) {
+                    return interfaceID == type(ERC165).interfaceId; // defined as the XOR of all function (it implements) selectors
+                }
+            }
+            ```
+        * verify
+            ```
+            function checkIfContractSupportsERC165(address contractAddress) external view returns (bool) {
+                ERC165 erc165 = ERC165(contractAddress);
+                return erc165.supportsInterface(INTERFACE_ID_ERC165);
+            }
+            ```
+* use case
+    * play a vital role in enabling seamless interactions between smart contracts and DApps
         * example: OpenSea - NFT Marketplace
             * uses ERC165 to check if a given contract supports the ERC721 standard, which is the most common standard for non-fungible tokens
-            * if a contract doesn't support ERC721 (as indicated by the supportsInterface call), OpenSea will handle it differently,
+            * if a contract doesn't support ERC721 (as indicated by the supportsInterface call), OpenSea will handle it differently
 
 ## openzeppelin
 * “ The following is an example of enclosing a token transfer call and an approve call within the require() function:”
