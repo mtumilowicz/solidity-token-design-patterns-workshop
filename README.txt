@@ -108,6 +108,7 @@
     * https://medium.com/textileio/swapping-bits-and-distributing-hashes-on-the-decentralized-web-5da98a3507
     * https://medium.com/textileio/whats-really-happening-when-you-add-a-file-to-ipfs-ae3b8b5e4b0f
     * https://medium.com/textileio/how-ipfs-peer-nodes-identify-each-other-on-the-distributed-web-8b5b6476aa5e
+    * https://medium.com/@Nico_Vergauwen/create-your-own-ethereum-token-part-2-erc223-3076f764cf62
 
 ## best practices
     * don't use plain secret on-chain
@@ -467,6 +468,116 @@
         * each level is a smart contract that needs to be ‘hacked’
         * solutions: https://stermi.medium.com/lets-play-ethernaut-ctf-learning-solidity-security-while-playing-1678bd6db3c4
 
+## design patterns
+    * security
+        * pull-over-push (withdrawal pattern)
+            * example of the problem
+                ```
+                for(uint i = 0; i < users.length; i++) { users[i].transfer(amount); };”
+                ```
+                * if some address is a contract it may have continually failing fallback function
+                    * leads to whole transaction failure each time
+            * solution: user should be able to claim their dividend from the contract
+            * use cases
+                * send ether/token to multiple addresses
+                * avoid paying transaction fees (push transaction)
+                    * transaction initiator has to pay the transaction fee
+                    * users pay transaction fees (pull transaction)
+        * access restriction
+            * restricts unauthorized function calls
+            * based on roles
+            * use modifiers to check for the access rights
+        * emergency stop
+            * ability to pause the contract functions in unwanted situations
+            * use cases
+                * contract to be handled differently in case of any emergency situations
+    * creational patterns
+        * factory
+            * create a new child contract from a parent contract
+            * https://eips.ethereum.org/EIPS/eip-1167
+            * example
+                * master contract can create a new child contract called Loan
+                    * Loan contract has logic to handle contract terms and conditions along with the funds as well
+            * use case
+                * new contract is required for each request to be processed
+                * keep the funds separate in a different contract
+    * behavioral patterns
+        * state machine
+            * allows a contract to transition from different states
+            * enables certain functions to be executed in each state
+            * use cases
+                * contract needs to have different set of functions based on the state
+        * iterable map pattern
+            * example
+                ```
+                mapping(uint256 => uint256) private data;
+                uint256[] private keys;
+
+                function removeValue(uint256 key) external {
+                    require(data[key] != 0, "Key does not exist");
+                    for (uint256 i = 0; i < keys.length; i++) {
+                        if (keys[i] == key) {
+                            // Swap the element to be removed with the last element
+                            keys[i] = keys[keys.length - 1];
+                            // Shorten the keys array by one
+                            keys.pop();
+                            break;
+                        }
+                    }
+                    delete data[key];
+                }
+                ```
+            * allows to iterate over the mapping entries
+            * iteration over the mapping entries should not cause an out-of-gas exception
+            * iteration should be used only in the view function
+            * does not support removal of elements
+            * use cases
+                * need to filter some data out of the mapping
+        * whitelisted addresses
+            * maintain a curated list of addresses by the owner
+            * use cases
+                * whitelisted address allowed/disallowed to perform a certain task
+    * gas-optimization
+        * worth to check: https://github.com/mtumilowicz/ethereum-gas-workshop
+        * keccak256 for equality check
+            * example: string equality
+            * use case
+                * gas-optimized solution for equality
+        * variable packing
+            * minimize slots used by storage
+            * each storage slot is 32 bytes
+            * use case
+                * gas-optimized solution for storage
+    * life cycle
+        * “Once a contract is destroyed, it cannot be recreated on the same address. ”
+        * mortal pattern allows a contract to be destroyed from the Ethereum blockchain.”
+            * “The mortal pattern should be used in the following cases, when:
+                * You do not want a contract to be present on the blockchain once its job is finished
+                * You want the ether held on the contract to be sent to the owner and the contract is not required further
+                * You do not need the contract state data after the contract reaches a specific state”
+        * auto deprecate
+            * allows time-based access to certain function calls
+            * example (using chainLink oracle)
+                ```
+                modifier onlyPremium() {
+                    require(subscriptionExpiry[msg.sender] >= getCurrentTime(), "Must be a premium member");
+                    _;
+                }
+
+                function getCurrentTime() internal returns (uint256) {
+                    Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
+                    req.add("get", "https://chain.link/v1/time");
+                    req.add("path", "now");
+
+                    return sendChainlinkRequestTo(oracle, req, fee);
+                }
+                ```
+            * use cases
+                * allow/restrict a function call for a specified duration of time
+                * auto-expired contract
+                * periodic paid service-based model
+                * existing user can purchase a premium status for a limited duration
+
 ## ipfs
 * stands for Interplanetary File System
     1. suppose humanity has colonises Mars and the first person on Mars tries to access internet services from Earth
@@ -713,117 +824,142 @@
                         ```
 
 ## tokens
-* standards play a pivotal role in ensuring interoperability and compatibility among different smart contracts and decentralized applications (DApps)
-* Though many think of Ethereum contracts as fully decentralized, nearly half of the top 20 projects can have their token transfers completely frozen by an owner (a single key or a multisig contract).
-    * Pausing can be valuable for future upgrades, swaps, and disaster mitigation but also leads to new risks.
-* Unverified code
-    * The contract hosted in their GitHub was reviewed instead, but without verification there’s no way to guarantee it matches the code in the blockchain (and we tried a number of combinations).
-    * We opened a GitHub issue (which you should upvote) requesting them to verify their contract with Etherscan. In general, we highly recommend posting your code on Etherscan (not just Github) as it:
-      Makes it easy for other to build on top of your contract,
-      Ensures that many eyes can look at your contract (and not publishing — i.e., security by obscurity — is a poor method to ensure security).
-* The zero race condition approval attack is can occur when you change your approve amount to a given contract. For example, you want to reduce the amount approved from 1 ETH to 0.5 ETH. The approved contract can race to transfer the money you initially approved (the 1 ETH) and then also spend the money you just approved (0.5 ETH), rather than being restricted to the updated value.
-* To get your a token listed on an exchange, the exchange has to write custom code so that they can talk to the given contract and allow people to trade the respective tokens. The same thing goes for wallet providers.
-    * Supporting hundreds of tokens can therefore be a very complex and time-consuming process for exchanges and wallet providers. Luckily for them, and for all of crypto, the blockchain community proposed the standard called ERC20.
-* In blockchain technology, a coin is a digital asset which is native to its blockchain. Unlike coins, which directly represent a proposed medium of exchange, crypto tokens are a representation of an asset.
-* A Token is a Smart Contract representing digital assets that can have value and can be sent and received.
-* Some Examples of ERC20, ERC721, and ERC1155
-    ERC20: BNB, USDT, Chainlink, Matic, etc.
-  ERC721: CryptoPunts, BAYC
-  ERC1155:Gods Unchained, The Sandbox
-* Tokens can represent virtually anything in Ethereum:
-    * reputation points in an online platform
-    * skills of a character in a game
-    * lottery tickets
-    * financial assets like a share in a company
-    * a fiat currency like USD
-    * an ounce of gold
-* As ERC20 (fungible) tokens, NFT (non-fungible tokens) are also simple “databases” on the blockchain.
-    * While an ERC20 token contract stores balances of Ethereum addresses, the NFT contract stores unique ID -> Ethereum address assignments.
-* In the Blockchain ecosystem, any asset that is digitally transferable between two people is called a token
-* What is fungibility?
-    * Fungibility means that the individual units of an asset are interchangeable and essentially indistinguishable from one another.
-    * A currency is a classic example of a fungible asset. $50 is always $50, regardless of the serial number of the fifty dollar banknote in question.
-      On the contrary, a work of art is a so-called non-fungible asset. A Picasso painting is not the same as a Van Gogh painting, they are two totally different, discernible works that cannot be interchanged.
-* OpenZeppelin
-    * is an open-source library of protocols, templates, & utilities for smart contract development
-    * includes implementations for token standards, flexible role-based permissioning schemes, & reusable components
-    * OpenZeppelin library offers implementations for ERC20 , ERC721, & ERC1155
-* The ability for any developer to release their digital asset without the need for a separate blockchain has become a turning point in the history of cryptocurrencies.
-* Bitcoin established the paradigm for other crypto projects: in order to issue any digital currency, a separate blockchain must be launched.
-  This rule has been broken by Ethereum. Smart contacts enabled you to create a token and assign it unique useful functions within your own application
-* Prior to ERC-20, however, there was a problem with token compatibility because each of them had a unique smart contract.
-    * To put it another way, in order for the exchange or wallet to support the token, the creators had to write new code each time.
-    * As a result, supporting an increasing number of tokens became increasingly difficult. As a result, a standard protocol for all tokens was developed.
-* In Ethereum, ERCs are analogous to RFCs
-    * This is distinct from Ethereum Improvement Proposals (EIPs) -focused on the Ethereum protocol.
+* any asset that is digitally transferable between two people
+* smart contract representing digital assets
+    * simple "databases" on the blockchain
+        * example
+            * ERC20: stores balances of Ethereum addresses
+            * ERC721: unique ID -> Ethereum address assignments
+* types
+    * fungible asset
+        * means that the individual units of an asset are interchangeable and essentially indistinguishable from one another
+        * example: currency
+            * $50 is always $50
+    * non-fungible asset
+        * means that the individual units of an asset are distinct and unique
+            * often possessing specific attributes, characteristics, or properties that set them apart from one another
+            * cannot be exchanged on a one-to-one basis
+        * example: education and certification
+            * Einstein diploma is not the same as Oppenheimer diploma
+* history
+    * coin is a digital asset which is native to its blockchain
+    * Bitcoin established the paradigm for other crypto projects: in order to issue any digital currency, a separate blockchain must be launched
+        * rule has been broken by Ethereum: smart contacts enabled to create a token and assign it unique useful functions within your own application
+    * ability for any developer to release their digital asset without the need for a separate blockchain has become a turning point in the history of cryptocurrencies
+* problem: supporting an increasing number of tokens became increasingly difficult
+    * in order for the exchange or wallet to support the token, the creators had to write new code each time
+    * example: prior to ERC-20,there was a problem with token compatibility because each of them had a unique smart contract
+    * solution: standard protocol for all tokens (ERC)
+        * play a pivotal role in ensuring interoperability and compatibility among different smart contracts and decentralized applications (DApps)
+        * ERCs are analogous to RFCs
+        * Ethereum Improvement Proposals (EIPs): focused on the Ethereum protocol
+* decentralization
+    * nearly half of the top 20 projects can have their token transfers completely frozen by an owner (a single key or a multisig contract)
+        * pausing can be valuable for future upgrades, swaps, and disaster mitigation but also leads to new risks
 * erc20
-    * _mint(msg.sender,1000*10**18);
-        * Solidity and the Ethereum Virtual Machine do not support decimals: only integer numbers can be used
-        * This means that only whole numbers can be sent (1, 4, 5), and this, of course, poses an issue.
-        * It’s very simple, a token contract can use larger integer values (the EVM supports 256-bit integers) so that a balance of 1000000000000000000 represents 1 ETH with 18 decimal places, hence a transfer of 4000000000000000 will correspond to 0.004ETH being sent.
-        * If you want a total max supply of 1.000.000.000 tokens, with 18 decimal places, like Ethereum and many other cryptocurrencies have, you want to pass 1000000000*10**18 that is (1000000000000000000000000000).
-        * On the other hand, when sending 2 tokens the method to call will actually be:
-            * transfer(recipient, 2 * 10**18);
-    * This is why, MyEtherWallet, for example, can support any ERC20 compliant token without having to be updated
-    * if the recipient is a contract, users must transfer their tokens using the approve +transferFrom mechanism. If the recipient is an externally owned account address then users must transfer their tokens via the transfer function. If a user will make a mistake and choose a wrong function then the tokens will get stuck inside contract (contract will not recognize a transaction). There will be no way to extract stuck tokens and the user will just lose his funds represented by this token.
-    * Explaining ERC20 and inside the structure: six functions, two events, and three information
-    * Fungible here means that each token in the set is indistinguishable from every other token in the set, in other words, they have a property that makes each Token be exactly the same (in type and value) of another Token
-    * This means that tokens built on the ERC-20 standard are compatible with one another and can be traded on Ethereum-based decentralized exchanges (DEXs) such as Uniswap and Sushiswap.
-    * ERC-20 tokens can represent any asset, such as a utility token, a security token, or even a stablecoin like Tether (USDT) or USD Coin (USDC)
-    * variety of purposes, such as fundraising for a new project, creating a loyalty program for a business, or providing access to a particular service or product.
-    * The ERC-20 standard defines six mandatory functions and three optional functions
-        * mandatory
-            * totalSupply: This function returns the total supply of tokens that have been created for a particular project.
-            * balanceOf: This function returns the balance of tokens held by a particular address.
-            * transfer: This function allows an address to send tokens to another address.
-                * It is important to note that when transferring tokens between accounts, the only transaction that happens on the blockchain is the contract call. In fact, when transferring tokens from one account to another (by using transfer() or transferFrom()) what the token contract does is simply update its own internal variable “_balances”, which contains for each account the amount of tokens it owns. This is showed in the snippets of code below.
-            * approve: This function allows an address to approve another address to spend tokens on their behalf.
-                * This is used, for example, by decentralized exchanges.
-            * transferFrom: This function allows an address to transfer tokens from another address that has approved them to do so.
-            * allowance: This function returns the amount of tokens that an approved address can spend on behalf of another address.
-        * optional
-            * name: This function returns the name of the token.
-            * symbol: This function returns the symbol of the token (usually a few letters or characters that represent the token).
-            * decimals: This function returns the number of decimal places that the token can be divided into (for example, a token with 18 decimal places can be divided into 10^18 units).
-    * The following events are triggered based on the listed ERC-20 functions:
-        * transfer(address indexed _from, address indexed _to, uint256 _value) : this is triggered whenever tokens are transferred
-            * Minting tokens emits a Transfer() event with the 0 address as the source.
-        * approval(address indexed _owner, address indexed _spender, uint256 _value) : this is triggered on any call to approve() function
-    * Developers can also add additional functions and features to their ERC-20 token contracts beyond the six mandatory and three optional functions.
-    * Tether (USDT)
-        * Tether’s value is pegged to the US dollar at a 1:1 ratio
+    * example: Tether (USDT)
+        * value is pegged to the US dollar at a 1:1 ratio
         * commonly used to move funds between exchanges quickly and easily
-    * “with the ERC20 token standard APIs, it is not possible to get notifications of another action being triggered when an ERC20 standard-specific token is received at the deployed contract”
-      * “The token transfers are received at the contract silently.”
-      * “The ERC223 standard provides the methods that will be called once the tokens are transferred”
-    * “In the OpenZeppelin's ERC20 standard implementation, the transfer() and transferFrom() functions also do not have a check for the contract address itself, such as require(to != address(this)). There is a reasoning behind this—to reduce the gas cost of the transaction, as there would be millions of transactions performed using these functions.”
-      * “if the tokens are transferred to the contract address itself, those tokens will be locked forever because the contract code does not have a way to take the tokens out of the contract.”
-      * “It is not recommended to change the ERC20 implementation and add the contract address check in it.”
-      * “However, the functions related to reclaiming tokens can be used in your ERC20 implementation”
-      * “This would enable the reclaiming of your contract-specific tokens, as well as other ERC20-specific tokens that were mistakenly sent to the contract”
-    * “The implementation of the approve() function that we looked at in the previous section is prone to front-running attacks.”
-      * “An attacker who initiates a transaction which is to be executed before a specific pending transaction that could benefit an attacker financially is called a front-running attack.”
-        * “On the Ethereum blockchain, the transaction gets executed based on the GasPrice someone is offering to process their transaction.”
-        * “anyone can read the transactions that are still pending and waiting to be executed in the transaction pool since Ethereum is a public blockchain”
-        * “An attacker would observe the transactions that are still pending in the transaction pool and trigger some transaction that could benefit them.”
-        * “Originally, Alice wanted Bob to get 1,500 tokens only. However, using the front-running attack, Bob ended up getting, in total, 2,500 tokens.”
-          * “For example, after calling the approve() function once, if you want to change it without being attacked using front-running, you can use the increaseApproval() or decreaseApproval() functions.”
-        * “To prevent front-running attacks, there are some techniques we can follow.”
-          * “You can use the following implementation of the approve() function, which ensures that, before updating the value, it should be set to zero”
-            * “require(_value == 0 || allowed[msg.sender][_spender] == 0);”
-    * “To transfer the tokens using the transferFrom() function, approver must have called the approve() function prior.”
-    * “if you are calling the transferFrom() function from within a Solidity contract, it is recommended to enclose the call with require() to ensure that the token transfer executed successfully and, in case of any transfer failure, the transaction should revert.”
-      * “require(ERC20.transferFrom(from, to, value));”
-    * “There are some advanced functions that were recently added in the ERC20 token implementations.”
-      * “However, these functions are not part of the ERC20 standard APIs”
-      * “These functions are just added to improve usage and reduce security issues and attacks”
-      * i“n the new OpenZeppelin implementation of ERC20 contracts, there are more functions such as _mint(), _burn(), and _burnFrom() that were also added”
-    * Let’s check them out:
-      Reputation points of any online platform.
-      Lottery tickets and schemes.
-      Financial assets such as shares, dividends, and stocks of a company
-      Fiat currencies, including USD.
-      Gold ounce, and much more.
+    * use cases
+        * reputation points of any online platform
+        * lottery tickets and schemes
+        * financial assets such as shares, dividends, and stocks of a company
+        * fiat currencies, including USD
+        * gold ounce
+    * funglible
+    * six functions, two events, and three information
+        * functions
+            1. totalSupply - returns the total supply of tokens that have been created for a particular project
+                * problem: Solidity and the Ethereum Virtual Machine do not support decimals: only integer numbers can be used
+                    * solution: use larger integer values (the EVM supports 256-bit integers)
+                        * example: total supply 1000 tokens, with 18 decimal places (like Ethereum) = 1000*10**18
+                            ```
+                            _mint(msg.sender, 1000 * 10**18); // mining 1000 tokens
+                            transfer(recipient, 2 * 10**18); // sending 2 tokens
+                            ```
+            1. balanceOf - returns the balance of tokens held by a particular address
+            1. transfer - allows an address to send tokens to another address
+                * the only transaction that happens on the blockchain is the contract call
+                * transferring tokens from one account to another = simply update internal variable “_balances”
+                * problem: Solidity and the Ethereum Virtual Machine do not support decimals: only integer numbers can be used
+                    * solution: token contract can use larger integer values (the EVM supports 256-bit integers)
+                        * example: 1000000000000000000 represents 1 ETH (with 18 decimal places)
+                            * transfer of 4000000000000000 will correspond to 0.004ETH being sent
+                        *
+                * token transfers are received at the contract silently
+                    * smart contract does not explicitly notify or acknowledge the receipt of tokens
+                    * solutions
+                        1. ERC223 standard provides the methods that will be called once the tokens are transferred
+                            ```
+                            function transfer(address to, uint value, bytes data) {
+                                    uint codeLength;
+                                    assembly {
+                                        codeLength := extcodesize(_to) // user wallets do not have code associated with them
+                                    }
+                                    balances[msg.sender] = balances[msg.sender].sub(_value);
+                                    balances[_to] = balances[_to].add(_value);
+                                    if(codeLength>0) {
+                                        // Require proper transaction handling.
+                                        ERC223Receiver receiver = ERC223Receiver(_to);
+                                        receiver.tokenFallback(msg.sender, _value, _data);
+                                    }
+                                }
+                            ```
+                        1. approve plus transferFrom mechanism
+                            * example
+                                ```
+                                contract DEX {
+                                    Erc20 public token;
+
+                                    constructor(address _tokenAddress) {
+                                        token = Erc20(_tokenAddress);
+                                    }
+
+                                    function tradeTokens(address _buyer, uint256 _amount) external {
+                                        // Assume _amount is the number of tokens the buyer wants to purchase
+                                        require(token.transferFrom(_buyer, address(this), _amount), "Token transfer failed");
+                                        // DEX now holds _amount of tokens
+
+                                        // Perform trading logic here
+                                        // ...
+                                    }
+                                }
+                                ```
+            1. approve - allows an address to approve another address to spend tokens on their behalf
+                * used by decentralized exchanges
+                * front-running approval attack
+                    * problem: you change your approve amount to a given contract
+                        * example: reduce the amount approved from 1 ETH to 0.5 ETH
+                            * approved contract can race to transfer the money you initially approved (the 1 ETH)
+                                * and then also spend the money you just approved (0.5 ETH)
+                    * solutions
+                        1. use the increaseApproval() or decreaseApproval() functions
+                        1. ensures that, before updating the value, it should be set to zero
+                            ```
+                            require(_value == 0 || allowed[msg.sender][_spender] == 0);
+                            ```
+            1. transferFrom - allows an address to transfer tokens from another address that has approved them to do so
+                * prerequisite: approver must have called the approve() function prior
+                * if called from within a Solidity contract recommended to enclose with require
+                    ```
+                    require(ERC20.transferFrom(from, to, value)) // in case of any transfer failure, the transaction should revert
+                    ```
+            1. allowance - returns the amount of tokens that an approved address can spend on behalf of another address
+            * developers can also add additional functions and features
+                * example: OpenZeppelin implementation of ERC20 contracts
+                    * more functions such as _mint(), _burn(), and _burnFrom()
+        * information
+            1. name - returns the name of the token
+            1. symbol - returns the symbol of the token
+                * usually a few letters or characters that represent the token
+            1. decimals - returns the number of decimal places that the token can be divided into
+                * example: a token with 18 decimal places can be divided into 10^18 units
+        * event
+            * transfer(address indexed _from, address indexed _to, uint256 _value)
+                * triggered whenever tokens are transferred
+                * minting emits transfer event with the 0 address as the source
+            * approval(address indexed _owner, address indexed _spender, uint256 _value)
+                * triggered on any call to approve() function
 * erc721
     * Let’s understand what can ERC-721 represents:
       - A unique digital content piece.
@@ -1063,7 +1199,7 @@
             * uses ERC165 to check if a given contract supports the ERC721 standard, which is the most common standard for non-fungible tokens
             * if a contract doesn't support ERC721 (as indicated by the supportsInterface call), OpenSea will handle it differently,
 
-* openzeppelin
+## openzeppelin
 * “ The following is an example of enclosing a token transfer call and an approve call within the require() function:”
   * “require(ERC20(tokenAddress).transferFrom(from, to, value));”
   * “OpenZeppelin provides the SafeERC20.sol contract to ensure the safety of these calls; it is helpful to protect the contract from unintended behavior.”
@@ -1107,143 +1243,7 @@
 * https://nfting.medium.com/the-history-of-cryptokitties-ethereums-first-official-gaming-application-499729e50794
 * https://betterprogramming.pub/cryptokitties-smart-contract-breakdown-2c3c250d33f6
 * https://spectrum.ieee.org/cryptokitties
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# design patterns
-    * security
-        * pull-over-push (withdrawal pattern)
-            * example of the problem
-                ```
-                for(uint i = 0; i < users.length; i++) { users[i].transfer(amount); };”
-                ```
-                * if some address is a contract it may have continually failing fallback function
-                    * leads to whole transaction failure each time
-            * solution: user should be able to claim their dividend from the contract
-            * use cases
-                * send ether/token to multiple addresses
-                * avoid paying transaction fees (push transaction)
-                    * transaction initiator has to pay the transaction fee
-                    * users pay transaction fees (pull transaction)
-        * access restriction
-            * restricts unauthorized function calls
-            * based on roles
-            * use modifiers to check for the access rights
-        * emergency stop
-            * ability to pause the contract functions in unwanted situations
-            * use cases
-                * contract to be handled differently in case of any emergency situations
-    * creational patterns
-        * factory
-            * create a new child contract from a parent contract
-            * https://eips.ethereum.org/EIPS/eip-1167
-            * example
-                * master contract can create a new child contract called Loan
-                    * Loan contract has logic to handle contract terms and conditions along with the funds as well
-            * use case
-                * new contract is required for each request to be processed
-                * keep the funds separate in a different contract
-    * behavioral patterns
-        * state machine
-            * allows a contract to transition from different states
-            * enables certain functions to be executed in each state
-            * use cases
-                * contract needs to have different set of functions based on the state
-        * iterable map pattern
-            * example
-                ```
-                mapping(uint256 => uint256) private data;
-                uint256[] private keys;
-
-                function removeValue(uint256 key) external {
-                    require(data[key] != 0, "Key does not exist");
-                    for (uint256 i = 0; i < keys.length; i++) {
-                        if (keys[i] == key) {
-                            // Swap the element to be removed with the last element
-                            keys[i] = keys[keys.length - 1];
-                            // Shorten the keys array by one
-                            keys.pop();
-                            break;
-                        }
-                    }
-                    delete data[key];
-                }
-                ```
-            * allows to iterate over the mapping entries
-            * iteration over the mapping entries should not cause an out-of-gas exception
-            * iteration should be used only in the view function
-            * does not support removal of elements
-            * use cases
-                * need to filter some data out of the mapping
-        * whitelisted addresses
-            * maintain a curated list of addresses by the owner
-            * use cases
-                * whitelisted address allowed/disallowed to perform a certain task
-    * gas-optimization
-        * worth to check: https://github.com/mtumilowicz/ethereum-gas-workshop
-        * keccak256 for equality check
-            * example: string equality
-            * use case
-                * gas-optimized solution for equality
-        * variable packing
-            * minimize slots used by storage
-            * each storage slot is 32 bytes
-            * use case
-                * gas-optimized solution for storage
-    * life cycle
-        * “Once a contract is destroyed, it cannot be recreated on the same address. ”
-        * mortal pattern allows a contract to be destroyed from the Ethereum blockchain.”
-            * “The mortal pattern should be used in the following cases, when:
-                * You do not want a contract to be present on the blockchain once its job is finished
-                * You want the ether held on the contract to be sent to the owner and the contract is not required further
-                * You do not need the contract state data after the contract reaches a specific state”
-        * auto deprecate
-            * allows time-based access to certain function calls
-            * example (using chainLink oracle)
-                ```
-                modifier onlyPremium() {
-                    require(subscriptionExpiry[msg.sender] >= getCurrentTime(), "Must be a premium member");
-                    _;
-                }
-
-                function getCurrentTime() internal returns (uint256) {
-                    Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
-                    req.add("get", "https://chain.link/v1/time");
-                    req.add("path", "now");
-
-                    return sendChainlinkRequestTo(oracle, req, fee);
-                }
-                ```
-            * use cases
-                * allow/restrict a function call for a specified duration of time
-                * auto-expired contract
-                * periodic paid service-based model
-                * existing user can purchase a premium status for a limited duration
+* OpenZeppelin
+    * is an open-source library of protocols, templates, & utilities for smart contract development
+    * includes implementations for token standards, flexible role-based permissioning schemes, & reusable components
+    * OpenZeppelin library offers implementations for ERC20 , ERC721, & ERC1155
