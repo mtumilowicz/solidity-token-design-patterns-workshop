@@ -112,6 +112,33 @@
     * https://ethereum.stackexchange.com/questions/120996/what-is-the-difference-between-safetransferfrom-and-transferfrom-functions-i
     * https://ethereum.stackexchange.com/questions/73125/what-is-the-bytes-data-param-in-safetransferfrom
 
+## preface
+* goals of this workshop
+    * know best practices when developing smart contract with Solidity
+    * understand some basic attacks & how to protect against them
+    * introduction to tokens
+        * erc20, erc721, erc1155
+    * enumerating some standard design patterns in Solidity
+    * understanding basic of IPFS
+    * introduction to OpenZeppelin
+* workshop task
+    1. implement CustomNftToken - no third party libraries
+        1. no third party libraries
+            * mint - everyone, but cost 1 eth
+            * transfer - only owner of token can transfer it
+            * withdraw - only owner of contract can get money
+            * implement tests in Solidity
+        1. rewrite it using Ownable from OpenZeppelin
+    1. OpenZeppelin
+        1. implement Erc721Token
+            * should define miner role and restrict minting only to miners
+            * should define admin role and restrict burning only to admins
+            * uri should be configurable per every token (ipfs case)
+        1. implement Erc20Token
+        1. implement Erc1155Token
+            * fungible: GOLD, SILVER, SWORD, SHIELD
+            * non-fungible: THOR_HAMMER
+
 ## best practices
     * don't use plain secret on-chain
         * problem: front-running attacks
