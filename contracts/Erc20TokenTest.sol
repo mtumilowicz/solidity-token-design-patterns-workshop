@@ -8,20 +8,24 @@ contract Erc20TokenTest {
 
     Erc20Token myToken;
     address owner;
-    address recipient;
 
     function beforeEach() public {
         myToken = new Erc20Token(1000);
         owner = address(this);
-        recipient = address(0x123);
     }
 
     function testTransfer() public {
+        // given
+        address recipient = address(0x123);
+
+        // and
         Assert.equal(myToken.balanceOf(owner), 1000, "Incorrect initial balance for owner");
         Assert.equal(myToken.balanceOf(recipient), 0, "Incorrect initial balance for recipient");
 
+        // when
         myToken.transfer(recipient, 500);
 
+        // then
         Assert.equal(myToken.balanceOf(owner), 500, "Incorrect balance for owner after transfer");
         Assert.equal(myToken.balanceOf(recipient), 500, "Incorrect balance for recipient after transfer");
     }

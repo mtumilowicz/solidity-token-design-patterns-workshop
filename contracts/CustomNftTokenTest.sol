@@ -41,6 +41,6 @@ contract CustomNftTokenTest {
         token.transfer(recipient, tokenId);
 
         // then
-        Assert.equal(token.idToOwner(tokenId), recipient, "dupa");
+        Assert.equal(token.idToOwner(tokenId), recipient, "new owner should be recipient");
     }
 }
