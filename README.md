@@ -113,6 +113,7 @@
     * https://ethereum.stackexchange.com/questions/73125/what-is-the-bytes-data-param-in-safetransferfrom
 
 ## preface
+* it may be worthwile to take a look here: https://github.com/mtumilowicz/solidity-basics-workshop
 * goals of this workshop
     * know best practices when developing smart contract with Solidity
     * understand some basic attacks & how to protect against them
