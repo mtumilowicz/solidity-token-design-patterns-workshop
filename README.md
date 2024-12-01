@@ -499,114 +499,114 @@
     * solutions: https://stermi.medium.com/lets-play-ethernaut-ctf-learning-solidity-security-while-playing-1678bd6db3c4
 
 ## design patterns
-    * security
-        * pull-over-push (withdrawal pattern)
-            * example of the problem
-                ```
-                for(uint i = 0; i < users.length; i++) { users[i].transfer(amount); };”
-                ```
-                * if some address is a contract it may have continually failing fallback function
-                    * leads to whole transaction failure each time
-            * solution: user should be able to claim their dividend from the contract
-            * use cases
-                * send ether/token to multiple addresses
-                * avoid paying transaction fees (push transaction)
-                    * transaction initiator has to pay the transaction fee
-                    * users pay transaction fees (pull transaction)
-        * access restriction
-            * restricts unauthorized function calls
-            * based on roles
-            * use modifiers to check for the access rights
-        * emergency stop
-            * ability to pause the contract functions in unwanted situations
-            * use cases
-                * contract to be handled differently in case of any emergency situations
-    * creational patterns
-        * factory
-            * create a new child contract from a parent contract
-            * https://eips.ethereum.org/EIPS/eip-1167
-            * example
-                * master contract can create a new child contract called Loan
-                    * Loan contract has logic to handle contract terms and conditions along with the funds as well
-            * use case
-                * new contract is required for each request to be processed
-                * keep the funds separate in a different contract
-    * behavioral patterns
-        * state machine
-            * allows a contract to transition from different states
-            * enables certain functions to be executed in each state
-            * use cases
-                * contract needs to have different set of functions based on the state
-        * iterable map pattern
-            * example
-                ```
-                mapping(uint256 => uint256) private data;
-                uint256[] private keys;
+* security
+    * pull-over-push (withdrawal pattern)
+        * example of the problem
+            ```
+            for(uint i = 0; i < users.length; i++) { users[i].transfer(amount); };”
+            ```
+            * if some address is a contract it may have continually failing fallback function
+                * leads to whole transaction failure each time
+        * solution: user should be able to claim their dividend from the contract
+        * use cases
+            * send ether/token to multiple addresses
+            * avoid paying transaction fees (push transaction)
+                * transaction initiator has to pay the transaction fee
+                * users pay transaction fees (pull transaction)
+    * access restriction
+        * restricts unauthorized function calls
+        * based on roles
+        * use modifiers to check for the access rights
+    * emergency stop
+        * ability to pause the contract functions in unwanted situations
+        * use cases
+            * contract to be handled differently in case of any emergency situations
+* creational patterns
+    * factory
+        * create a new child contract from a parent contract
+        * https://eips.ethereum.org/EIPS/eip-1167
+        * example
+            * master contract can create a new child contract called Loan
+                * Loan contract has logic to handle contract terms and conditions along with the funds as well
+        * use case
+            * new contract is required for each request to be processed
+            * keep the funds separate in a different contract
+* behavioral patterns
+    * state machine
+        * allows a contract to transition from different states
+        * enables certain functions to be executed in each state
+        * use cases
+            * contract needs to have different set of functions based on the state
+    * iterable map pattern
+        * example
+            ```
+            mapping(uint256 => uint256) private data;
+            uint256[] private keys;
 
-                function removeValue(uint256 key) external {
-                    require(data[key] != 0, "Key does not exist");
-                    for (uint256 i = 0; i < keys.length; i++) {
-                        if (keys[i] == key) {
-                            // Swap the element to be removed with the last element
-                            keys[i] = keys[keys.length - 1];
-                            // Shorten the keys array by one
-                            keys.pop();
-                            break;
-                        }
+            function removeValue(uint256 key) external {
+                require(data[key] != 0, "Key does not exist");
+                for (uint256 i = 0; i < keys.length; i++) {
+                    if (keys[i] == key) {
+                        // Swap the element to be removed with the last element
+                        keys[i] = keys[keys.length - 1];
+                        // Shorten the keys array by one
+                        keys.pop();
+                        break;
                     }
-                    delete data[key];
                 }
-                ```
-            * allows to iterate over the mapping entries
-            * iteration over the mapping entries should not cause an out-of-gas exception
-            * iteration should be used only in the view function
-            * does not support removal of elements
-            * use cases
-                * need to filter some data out of the mapping
-        * whitelisted addresses
-            * maintain a curated list of addresses by the owner
-            * use cases
-                * whitelisted address allowed/disallowed to perform a certain task
-    * gas-optimization
-        * worth to check: https://github.com/mtumilowicz/ethereum-gas-workshop
-        * keccak256 for equality check
-            * example: string equality
-            * use case
-                * gas-optimized solution for equality
-        * variable packing
-            * minimize slots used by storage
-            * each storage slot is 32 bytes
-            * use case
-                * gas-optimized solution for storage
-    * life cycle
-        * “Once a contract is destroyed, it cannot be recreated on the same address. ”
-        * mortal pattern allows a contract to be destroyed from the Ethereum blockchain.”
-            * “The mortal pattern should be used in the following cases, when:
-                * You do not want a contract to be present on the blockchain once its job is finished
-                * You want the ether held on the contract to be sent to the owner and the contract is not required further
-                * You do not need the contract state data after the contract reaches a specific state”
-        * auto deprecate
-            * allows time-based access to certain function calls
-            * example (using chainLink oracle)
-                ```
-                modifier onlyPremium() {
-                    require(subscriptionExpiry[msg.sender] >= getCurrentTime(), "Must be a premium member");
-                    _;
-                }
+                delete data[key];
+            }
+            ```
+        * allows to iterate over the mapping entries
+        * iteration over the mapping entries should not cause an out-of-gas exception
+        * iteration should be used only in the view function
+        * does not support removal of elements
+        * use cases
+            * need to filter some data out of the mapping
+    * whitelisted addresses
+        * maintain a curated list of addresses by the owner
+        * use cases
+            * whitelisted address allowed/disallowed to perform a certain task
+* gas-optimization
+    * worth to check: https://github.com/mtumilowicz/ethereum-gas-workshop
+    * keccak256 for equality check
+        * example: string equality
+        * use case
+            * gas-optimized solution for equality
+    * variable packing
+        * minimize slots used by storage
+        * each storage slot is 32 bytes
+        * use case
+            * gas-optimized solution for storage
+* life cycle
+    * “Once a contract is destroyed, it cannot be recreated on the same address. ”
+    * mortal pattern allows a contract to be destroyed from the Ethereum blockchain.”
+        * “The mortal pattern should be used in the following cases, when:
+            * You do not want a contract to be present on the blockchain once its job is finished
+            * You want the ether held on the contract to be sent to the owner and the contract is not required further
+            * You do not need the contract state data after the contract reaches a specific state”
+    * auto deprecate
+        * allows time-based access to certain function calls
+        * example (using chainLink oracle)
+            ```
+            modifier onlyPremium() {
+                require(subscriptionExpiry[msg.sender] >= getCurrentTime(), "Must be a premium member");
+                _;
+            }
 
-                function getCurrentTime() internal returns (uint256) {
-                    Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
-                    req.add("get", "https://chain.link/v1/time");
-                    req.add("path", "now");
+            function getCurrentTime() internal returns (uint256) {
+                Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
+                req.add("get", "https://chain.link/v1/time");
+                req.add("path", "now");
 
-                    return sendChainlinkRequestTo(oracle, req, fee);
-                }
-                ```
-            * use cases
-                * allow/restrict a function call for a specified duration of time
-                * auto-expired contract
-                * periodic paid service-based model
-                * existing user can purchase a premium status for a limited duration
+                return sendChainlinkRequestTo(oracle, req, fee);
+            }
+            ```
+        * use cases
+            * allow/restrict a function call for a specified duration of time
+            * auto-expired contract
+            * periodic paid service-based model
+            * existing user can purchase a premium status for a limited duration
 
 ## ipfs
 * stands for Interplanetary File System
