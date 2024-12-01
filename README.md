@@ -141,362 +141,362 @@
             * non-fungible: THOR_HAMMER
 
 ## best practices
-    * don't use plain secret on-chain
-        * problem: front-running attacks
-            * all the transaction data is open and can be seen by others
-                * even data of pending transaction can be seen by others
-            * example: domain name registration
-                * user is registering a unique value
-                * attacker watch for the transactions on that contract
-                    * send the high gas-price transaction to front run the user's transaction
-        * solution: commit-and-reveal scheme
-            * hash of the original secret is submitted to the blockchain
-            * steps
-                1. all parties submit their secret hash
-                1. all parties reveal their choice by submitting salt (that was used to generate the secret hash)
-    * don't use `tx.origin` for authorization
-        * problem: intercepting transaction
-            1. we have `Vault` contract, that has function `withdraw()` using `tx.origin` for authorization
-            1. attacker deploys AttackerContract
-            1. attacker ask the original owner of the Vault contract to send some ether to the AttackerContract
-            1. AttackerContract calls the Vault.withdraw() function
-        * solution: always use `msg.sender`
-    * avoid dependency on untrusted external calls
-        * problems
-            * if the target contract is killed via selfdestruct, the external call to the function will always fail
-            * reentrancy attack
-                * re-enter origin contract before the state changes are finalized
-            * unpredictable gas costs
-    * reentrancy attacks
-        * problem: re-enter origin contract before the state changes are finalized
-            * example (2016 dao hack)
-                ```
-                function withdraw(uint amount) public {
-                     require(balanceOf[msg.sender] >= amount);
-                     msg.sender.call{value: amount}(""); // invokes fallback function in caller, which in turns invokes withdraw again
-                     balanceOf[msg.sender] -= amount;
-                     Withdrawal(msg.sender, amount);
-                }
-                ```
-        * solution: checks-effects-interactions (CEI) pattern
+* don't use plain secret on-chain
+    * problem: front-running attacks
+        * all the transaction data is open and can be seen by others
+            * even data of pending transaction can be seen by others
+        * example: domain name registration
+            * user is registering a unique value
+            * attacker watch for the transactions on that contract
+                * send the high gas-price transaction to front run the user's transaction
+    * solution: commit-and-reveal scheme
+        * hash of the original secret is submitted to the blockchain
+        * steps
+            1. all parties submit their secret hash
+            1. all parties reveal their choice by submitting salt (that was used to generate the secret hash)
+* don't use `tx.origin` for authorization
+    * problem: intercepting transaction
+        1. we have `Vault` contract, that has function `withdraw()` using `tx.origin` for authorization
+        1. attacker deploys AttackerContract
+        1. attacker ask the original owner of the Vault contract to send some ether to the AttackerContract
+        1. AttackerContract calls the Vault.withdraw() function
+    * solution: always use `msg.sender`
+* avoid dependency on untrusted external calls
+    * problems
+        * if the target contract is killed via selfdestruct, the external call to the function will always fail
+        * reentrancy attack
+            * re-enter origin contract before the state changes are finalized
+        * unpredictable gas costs
+* reentrancy attacks
+    * problem: re-enter origin contract before the state changes are finalized
+        * example (2016 dao hack)
+            ```
+            function withdraw(uint amount) public {
+                 require(balanceOf[msg.sender] >= amount);
+                 msg.sender.call{value: amount}(""); // invokes fallback function in caller, which in turns invokes withdraw again
+                 balanceOf[msg.sender] -= amount;
+                 Withdrawal(msg.sender, amount);
+            }
+            ```
+    * solution: checks-effects-interactions (CEI) pattern
+        * example
+            ```
+            function withdraw(uint amount) public {
+                // Checks phase
+                require(balanceOf[msg.sender] >= amount, "Insufficient balance");
+
+                // Effects phase
+                balanceOf[msg.sender] -= amount;
+
+                // Interactions phase
+                (bool success, ) = msg.sender.call{value: amount}("");
+                require(success, "Transfer failed");
+
+                // Emit event after successful interaction
+                emit Withdrawal(msg.sender, amount);
+            }
+            ```
+* replay attack
+    * problem
+        * cross-chain signature replay
             * example
                 ```
-                function withdraw(uint amount) public {
-                    // Checks phase
-                    require(balanceOf[msg.sender] >= amount, "Insufficient balance");
-
-                    // Effects phase
-                    balanceOf[msg.sender] -= amount;
-
-                    // Interactions phase
-                    (bool success, ) = msg.sender.call{value: amount}("");
-                    require(success, "Transfer failed");
-
-                    // Emit event after successful interaction
-                    emit Withdrawal(msg.sender, amount);
+                function deposit() public payable { // reply transaction from testnet on the mainnet
+                    balances[msg.sender] += msg.value;
                 }
                 ```
-    * replay attack
-        * problem
-            * cross-chain signature replay
+            * usually happen during chain splits or hard forks
+                * Ethereum: signed transaction is valid for all Ethereum chains
+                * Bitcoin: addresses in testnet use a different prefix from addresses in mainnet
+                    * keys are different
+            * solution: use chainId when generating a signature
+        * same-chain signature replay
+            * example
+                ```
+                function deposit() public payable { // attacker rebroadcasts the same transaction with the same parameters
+                    balances[msg.sender] += msg.value;
+                }
+                ```
+            * solution: use nonce when generating a signature
+    * solution
+        * two approaches
+            * strong replay protection
+                * one of the forked chains will make it mandatory to change some information in the transaction for it to be valid over its network
+            * opt-in reply protection
+                * users must make manual changes to the transaction to ensure that they won’t be replayed
+                * example: Ethereum Classic (ETC) did not implement strong replay protection during the hard fork
+        * EIP155
+            * called "simple replay attack protection"
+            * defines the chainID field in Ethereum transactions to prevent replay attacks
+            * before EIP155
+                * there are 6 inputs to an Ethereum transaction
+                    * nonce, gasPrice, gasLimit, to, value, data
+                * transaction is not chain specific
+                    * same addresses in different networks => can lead to unintended transactions
+            * user should sign the data along with a unique nonce value each time
                 * example
                     ```
-                    function deposit() public payable { // reply transaction from testnet on the mainnet
-                        balances[msg.sender] += msg.value;
-                    }
-                    ```
-                * usually happen during chain splits or hard forks
-                    * Ethereum: signed transaction is valid for all Ethereum chains
-                    * Bitcoin: addresses in testnet use a different prefix from addresses in mainnet
-                        * keys are different
-                * solution: use chainId when generating a signature
-            * same-chain signature replay
-                * example
-                    ```
-                    function deposit() public payable { // attacker rebroadcasts the same transaction with the same parameters
-                        balances[msg.sender] += msg.value;
-                    }
-                    ```
-                * solution: use nonce when generating a signature
-        * solution
-            * two approaches
-                * strong replay protection
-                    * one of the forked chains will make it mandatory to change some information in the transaction for it to be valid over its network
-                * opt-in reply protection
-                    * users must make manual changes to the transaction to ensure that they won’t be replayed
-                    * example: Ethereum Classic (ETC) did not implement strong replay protection during the hard fork
-            * EIP155
-                * called "simple replay attack protection"
-                * defines the chainID field in Ethereum transactions to prevent replay attacks
-                * before EIP155
-                    * there are 6 inputs to an Ethereum transaction
-                        * nonce, gasPrice, gasLimit, to, value, data
-                    * transaction is not chain specific
-                        * same addresses in different networks => can lead to unintended transactions
-                * user should sign the data along with a unique nonce value each time
-                    * example
-                        ```
-                        mapping(address => uint256) public nonces;
+                    mapping(address => uint256) public nonces;
 
-                        function deposit(uint256 nonce) public payable {
-                            require(nonce > nonces[msg.sender], "Invalid nonce");
-                            nonces[msg.sender] = nonce;
-                            balances[msg.sender] += msg.value;
-                        }
-                        ```
-                * every transaction signature should also encapsulate a unique identifier for the specific network
-            * EIP191
-                * called "signature data standard"
-                * introduces a prefix to the data that is being signed
-                    * example
-                        ```
-                        "\x19Ethereum Signed Message:\n32"
-                        ```
-                        * byte `0x19` standardized because an already existing implementation (in the Go Ethereum client software)
-                        was using it before the standard was finalized
-                        * last number `32` is the byte length of the message (excluding the prefix)
-                * reason for prefixing is so that a cleverly designed message cannot possibly be a valid transaction
-                    * allowing signing raw messages, without a prefix, enables an app to steal all ether, tokens and assets
-                        * purpose is entirely to invalidate any payload as a valid RLP encoded transaction
-                        * MetaMask does not permit you to perform this operation
-                            * it will always force prefixing a signed message even when the message is a hash
-                    * when you create a transaction: unsigned transaction -> hash it -> sign it
-                    * when you create a message: unsigned message -> prefix it -> hash it -> sign it
-                    * example
-                        ```
-                        let unsignedTransaction = "0xe980850218711a00825208948ba1f109551bd432803012645ac136ddd64dba72880de0b6b3a764000080";
-                        ```
-                        decoded with https://flightwallet.github.io/decode-eth-tx/
-                        ```
-                        {
-                          "nonce": 0,
-                          "gasPrice": 9000000000,
-                          "gasLimit": 21000,
-                          "to": "0x8ba1f109551bd432803012645ac136ddd64dba72",
-                          "value": 1000000000000000000,
-                          "data": ""
-                        }
-                        ```
-                        * if attacked gives you this hash and you sign it => it is now a valid signed transaction which will send 1 ether to attacker
-                        * string that begins with "\x19Ethereum Signed Message:" is not a valid transaction
-                            * it is safe to sign it
-                * eliminates the risk of replay attacks on other EVM platforms
-                    * if there were no platform-specific prefixes, the resulting signature would be the same for all platforms
-                * use case
-                    * smart contract needs to verify a signed message
-                    * external systems need to interact with Ethereum transactions in a standardized way
-                * list of chain ids: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md?ref=blog.hook.xyz#list-of-chain-ids
-            * EIP712
-                * is a more advanced and secure method of signing a transaction
-                * provides a way to hash and sign typed structs rather than just strings
-                    * uses the keccak256 hashing algorithm
-                * requires TypedData (JSON object input)
-                    * example
-                        ```
-                        typedData := apitypes.TypedData{
-                        	Types:       types,
-                        	PrimaryType: "ERC721Order",
-                        	Domain:      domain,
-                        	Message:     message,
-                        }
-                        ```
-                    * includes the following properties
-                        * types
-                            * used to define the structs that will be used in the message and specify their types
-                            * is a mapping of string to a Type array
-                                * example
-                                    ```
-                                    types := apitypes.Types{
-                                    	"EIP712Domain": {
-                                    		{Name: "name", Type: "string"},
-                                    		{Name: "version", Type: "string"},
-                                    		{Name: "chainId", Type: "uint256"},
-                                    		{Name: "verifyingContract", Type: "address"},
-                                    	},
-                                    	"ERC721Order": {
-                                    		{Name: "direction", Type: "uint8"},
-                                    		...
-                                    	},
-                                    	"Fee": { // custom types
-                                        	{Name: "recipient", Type: "address"},
-                                        	{Name: "amount", Type: "uint256"},
-                                        	{Name: "feeData", Type: "bytes"},
-                                        },
-                                    ```
-                        * domain
-                            * information specific to the protocol contract that the dapp used when asking for a signature
-                            * designed to include bits of DApp unique information
-                                * name
-                                    * human-readable string that represents the name of the domai
-                                    * often used to identify the dApp or smart contract associated with the message
-                                * version
-                                    * string representing the version of the domain
-                                    * can be useful for distinguishing between different versions of the same dApp or smart contract
-                                * chainId
-                                    * wallet providers should prevent signing if it does not match the network it is currently connected to
-                                    * it is crucial that chainId is verified on-chain
-                                        * contracts have no way to find out which chain ID they are on
-                                            * developers must hardcode chainId into their contracts and take extra care to make sure that it corresponds to the network they deploy on
-                                * verifyingContract
-                                    * address of the smart contract that will verify the signed message
-                            * domain separator
-                                * information from the domain also needs to be hashed and used as a domain separator
-                                * purpose is to disambiguate between two dapps with identical structures
-                                    * in order to avoid generating the same signatures for both
-                                    * example
-                                        * two DApps come up with an identical structure like Transfer(address from,address to,uint256 amount)
-                                        * with domain separator the dApp developers are guaranteed that there can be no signature collision
-                        * primaryType
-                            * string that represents the outermost type of the message object
-                        * message
-                            * contains the order element names as strings mapped to their values
+                    function deposit(uint256 nonce) public payable {
+                        require(nonce > nonces[msg.sender], "Invalid nonce");
+                        nonces[msg.sender] = nonce;
+                        balances[msg.sender] += msg.value;
+                    }
+                    ```
+            * every transaction signature should also encapsulate a unique identifier for the specific network
+        * EIP191
+            * called "signature data standard"
+            * introduces a prefix to the data that is being signed
+                * example
+                    ```
+                    "\x19Ethereum Signed Message:\n32"
+                    ```
+                    * byte `0x19` standardized because an already existing implementation (in the Go Ethereum client software)
+                    was using it before the standard was finalized
+                    * last number `32` is the byte length of the message (excluding the prefix)
+            * reason for prefixing is so that a cleverly designed message cannot possibly be a valid transaction
+                * allowing signing raw messages, without a prefix, enables an app to steal all ether, tokens and assets
+                    * purpose is entirely to invalidate any payload as a valid RLP encoded transaction
+                    * MetaMask does not permit you to perform this operation
+                        * it will always force prefixing a signed message even when the message is a hash
+                * when you create a transaction: unsigned transaction -> hash it -> sign it
+                * when you create a message: unsigned message -> prefix it -> hash it -> sign it
+                * example
+                    ```
+                    let unsignedTransaction = "0xe980850218711a00825208948ba1f109551bd432803012645ac136ddd64dba72880de0b6b3a764000080";
+                    ```
+                    decoded with https://flightwallet.github.io/decode-eth-tx/
+                    ```
+                    {
+                      "nonce": 0,
+                      "gasPrice": 9000000000,
+                      "gasLimit": 21000,
+                      "to": "0x8ba1f109551bd432803012645ac136ddd64dba72",
+                      "value": 1000000000000000000,
+                      "data": ""
+                    }
+                    ```
+                    * if attacked gives you this hash and you sign it => it is now a valid signed transaction which will send 1 ether to attacker
+                    * string that begins with "\x19Ethereum Signed Message:" is not a valid transaction
+                        * it is safe to sign it
+            * eliminates the risk of replay attacks on other EVM platforms
+                * if there were no platform-specific prefixes, the resulting signature would be the same for all platforms
+            * use case
+                * smart contract needs to verify a signed message
+                * external systems need to interact with Ethereum transactions in a standardized way
+            * list of chain ids: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md?ref=blog.hook.xyz#list-of-chain-ids
+        * EIP712
+            * is a more advanced and secure method of signing a transaction
+            * provides a way to hash and sign typed structs rather than just strings
+                * uses the keccak256 hashing algorithm
+            * requires TypedData (JSON object input)
+                * example
+                    ```
+                    typedData := apitypes.TypedData{
+                    	Types:       types,
+                    	PrimaryType: "ERC721Order",
+                    	Domain:      domain,
+                    	Message:     message,
+                    }
+                    ```
+                * includes the following properties
+                    * types
+                        * used to define the structs that will be used in the message and specify their types
+                        * is a mapping of string to a Type array
                             * example
                                 ```
-                                {
-                                    amount: 100,
-                                    token: “0x….”,
-                                    id: 15,
-                                    bidder: {
-                                        userId: 323,
-                                        wallet: “0x….”
-                                    }
-                                }
+                                types := apitypes.Types{
+                                	"EIP712Domain": {
+                                		{Name: "name", Type: "string"},
+                                		{Name: "version", Type: "string"},
+                                		{Name: "chainId", Type: "uint256"},
+                                		{Name: "verifyingContract", Type: "address"},
+                                	},
+                                	"ERC721Order": {
+                                		{Name: "direction", Type: "uint8"},
+                                		...
+                                	},
+                                	"Fee": { // custom types
+                                    	{Name: "recipient", Type: "address"},
+                                    	{Name: "amount", Type: "uint256"},
+                                    	{Name: "feeData", Type: "bytes"},
+                                    },
                                 ```
-                                can be split into two data structures
-                                ```
-                                Bid: {
-                                    amount: uint256,
-                                    bidder: Identity
-                                }
-                                Identity: {
-                                    userId: uint256,
-                                    wallet: address
-                                }
-                                ```
+                    * domain
+                        * information specific to the protocol contract that the dapp used when asking for a signature
+                        * designed to include bits of DApp unique information
+                            * name
+                                * human-readable string that represents the name of the domai
+                                * often used to identify the dApp or smart contract associated with the message
+                            * version
+                                * string representing the version of the domain
+                                * can be useful for distinguishing between different versions of the same dApp or smart contract
+                            * chainId
+                                * wallet providers should prevent signing if it does not match the network it is currently connected to
+                                * it is crucial that chainId is verified on-chain
+                                    * contracts have no way to find out which chain ID they are on
+                                        * developers must hardcode chainId into their contracts and take extra care to make sure that it corresponds to the network they deploy on
+                            * verifyingContract
+                                * address of the smart contract that will verify the signed message
+                        * domain separator
+                            * information from the domain also needs to be hashed and used as a domain separator
+                            * purpose is to disambiguate between two dapps with identical structures
+                                * in order to avoid generating the same signatures for both
+                                * example
+                                    * two DApps come up with an identical structure like Transfer(address from,address to,uint256 amount)
+                                    * with domain separator the dApp developers are guaranteed that there can be no signature collision
+                    * primaryType
+                        * string that represents the outermost type of the message object
+                    * message
+                        * contains the order element names as strings mapped to their values
                         * example
                             ```
-                            domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
-                            typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.M
-                            rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
-                            hashBytes := keccak256(rawData)
-                            hash := common.BytesToHash(hashBytes)
+                            {
+                                amount: 100,
+                                token: “0x….”,
+                                id: 15,
+                                bidder: {
+                                    userId: 323,
+                                    wallet: “0x….”
+                                }
+                            }
                             ```
-                * standard for secure off-chain signature verification on the Ethereum blockchain
-                * signature verification
-                    * process of checking that the address of the signer is equal to the address that you derive from the signature
-                        ![Alt Text](img/verifying_signature.png)
-                    * ecrecover
-                        * is vulnerable
-                            * it interprets v values of both 27 and 28 as equivalent
-                                * it only checks if v is greater than or equal to 27
-                                * signatures produced with both v = 27 and v = 28 will yield the same public key
-                            * it does not halt execution when invalid signatures are supplied
-                                * it simply returns the address 0x0
-                                    * zero address in most contracts has a special meaning (i.e. burn address)
-                                    * smart contract might incorrectly assume that the zero address is a valid signer
-                            * use: OpenZeppelin’s ECDSA library
-                        * used to derive the address of a sender based on the digital signature
-                        * needs assembly
+                            can be split into two data structures
+                            ```
+                            Bid: {
+                                amount: uint256,
+                                bidder: Identity
+                            }
+                            Identity: {
+                                userId: uint256,
+                                wallet: address
+                            }
+                            ```
                     * example
-                        * replicate this formatting/hash function
                         ```
-                        struct Identity {
-                            uint256 userId;
-                            address wallet;
-                        }
-                        struct Bid {
-                            uint256 amount;
-                            Identity bidder;
-                        }
+                        domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
+                        typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.M
+                        rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
+                        hashBytes := keccak256(rawData)
+                        hash := common.BytesToHash(hashBytes)
+                        ```
+            * standard for secure off-chain signature verification on the Ethereum blockchain
+            * signature verification
+                * process of checking that the address of the signer is equal to the address that you derive from the signature
+                    ![Alt Text](img/verifying_signature.png)
+                * ecrecover
+                    * is vulnerable
+                        * it interprets v values of both 27 and 28 as equivalent
+                            * it only checks if v is greater than or equal to 27
+                            * signatures produced with both v = 27 and v = 28 will yield the same public key
+                        * it does not halt execution when invalid signatures are supplied
+                            * it simply returns the address 0x0
+                                * zero address in most contracts has a special meaning (i.e. burn address)
+                                * smart contract might incorrectly assume that the zero address is a valid signer
+                        * use: OpenZeppelin’s ECDSA library
+                    * used to derive the address of a sender based on the digital signature
+                    * needs assembly
+                * example
+                    * replicate this formatting/hash function
+                    ```
+                    struct Identity {
+                        uint256 userId;
+                        address wallet;
+                    }
+                    struct Bid {
+                        uint256 amount;
+                        Identity bidder;
+                    }
 
-                        string private constant IDENTITY_TYPE = "Identity(uint256 userId,address wallet)";
-                        string private constant BID_TYPE = "Bid(uint256 amount,Identity bidder)Identity(uint256 userId,address wallet)";
+                    string private constant IDENTITY_TYPE = "Identity(uint256 userId,address wallet)";
+                    string private constant BID_TYPE = "Bid(uint256 amount,Identity bidder)Identity(uint256 userId,address wallet)";
 
-                        uint256 constant chainId = 1;
-                        address constant verifyingContract = 0x1C56346CD2A2Bf3202F771f50d3D14a367B48070;
-                        bytes32 constant salt = 0xf2d857f4a3edcb9b78b4d503bfe733db1e3f6cdc2b7971ee739626c97e86a558;
-                        string private constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
-                        bytes32 private constant DOMAIN_SEPARATOR = keccak256(abi.encode(
-                            EIP712_DOMAIN_TYPEHASH,
-                            keccak256("My amazing dApp"),
-                            keccak256("2"),
-                            chainId,
-                            verifyingContract,
+                    uint256 constant chainId = 1;
+                    address constant verifyingContract = 0x1C56346CD2A2Bf3202F771f50d3D14a367B48070;
+                    bytes32 constant salt = 0xf2d857f4a3edcb9b78b4d503bfe733db1e3f6cdc2b7971ee739626c97e86a558;
+                    string private constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
+                    bytes32 private constant DOMAIN_SEPARATOR = keccak256(abi.encode(
+                        EIP712_DOMAIN_TYPEHASH,
+                        keccak256("My amazing dApp"),
+                        keccak256("2"),
+                        chainId,
+                        verifyingContract,
+                    ));
+
+                    function hashIdentity(Identity identity) private pure returns (bytes32) {
+                        return keccak256(abi.encode(
+                            IDENTITY_TYPEHASH,
+                            identity.userId,
+                            identity.wallet
+                        ));
+                    }
+                    function hashBid(Bid memory bid) private pure returns (bytes32){
+                        return keccak256(abi.encodePacked(
+                            "\\x19\\x01",
+                           DOMAIN_SEPARATOR,
+                           keccak256(abi.encode(
+                                BID_TYPEHASH,
+                                bid.amount,
+                                hashIdentity(bid.bidder)
+                            ))
                         ));
 
-                        function hashIdentity(Identity identity) private pure returns (bytes32) {
-                            return keccak256(abi.encode(
-                                IDENTITY_TYPEHASH,
-                                identity.userId,
-                                identity.wallet
-                            ));
-                        }
-                        function hashBid(Bid memory bid) private pure returns (bytes32){
-                            return keccak256(abi.encodePacked(
-                                "\\x19\\x01",
-                               DOMAIN_SEPARATOR,
-                               keccak256(abi.encode(
-                                    BID_TYPEHASH,
-                                    bid.amount,
-                                    hashIdentity(bid.bidder)
-                                ))
-                            ));
-
-                        function verify(address signer, Bid memory bid, sigR, sigS, sigV) public pure returns (bool) {
-                            return signer == ecrecover(hashBid(bid), sigV, sigR, sigS);
-                        }
-                        ```
-                * wallets like Metamask can display the message in a more user-friendly manner
-                    * the signer can actually check the data before signing
-                        * display in a human-readable way that users can understand and review before signing
-                    * example
-                        ![Alt Text](img/eip721_metamask.png)
-                * before EIP712
-                    * it was difficult for users to verify the data they were asked to sign
-                    * wallet signing interfaces would display a hashed message string
-                        * the signer would have to assume that hash matched the message they thought they were signing
-                * use case
-                    * meta-transactions
-                        * relayer pays the gas fees on behalf of the user
-                            * relayer = service responsible for submitting transactions on behalf of users
-                        * users sign a request (off-chain) for a specific action they want to perform on the blockchain
-                            * includes information like the target contract, function to call, and any required parameters
-    * short address attack
-        * equivalent of minor SQL injection bug
-        * problem: leading zeros is taken from the amount, and given to the shortened address
-            * * means you've multiplied your amount by 1<<8 or 256
-                * after the exchange has checked your balance on their internal ledger
-            * reason: EVM pads all input data with 0s
-            * example
-                1. user B's address: 0xbbbbbb00
-                1. user A's balance: 512 tokens
-                1. A inputs B's address as 0xbbbbbb
-                1. site (incorrectly) interprets this as a valid address and constructs transaction
-                    * selector: 0x01020304
-                    * transaction: 0x01020304bbbbbbbb00000001
-                1. if we slice that back up into a 4-byte signature and 2 4-byte words
-                    * ['0x01020304', '0xbbbbbb00', '0x000001??']
-                1. any index into the transaction data that hasn't been provided returns 0s
-                    * trailing zeros do not change the actual address
-                        * `0x1234...5670` and `0x1234...567000` represent the same address
-                1. final argument being interpreted by the EVM as 0x00000100 = 256
-                    * 256
-                1. given that 256 is still less than 512 (your comment), the transaction succeeds
-            * most vulnerable to this were large, shared wallets
-                * example: exchange hot wallets
-        * solution: smart contract must validate the length of an address input
-    * manipulating contract balance
-        * problem: ether can be sent forcibly to a contract
-            * if contract has some decision logic using `address(this).balance` - attacked can influence it
-            * example
-                ```
-                selfdestruct(addressOfAttackedContract)
-                ```
-        * solution: there is no possible way to prevent forceful ether sending from happening
-    * Ethernaut game
-        * Web3/Solidity based war game created by OpenZeppelin
-        * each level is a smart contract that needs to be ‘hacked’
-        * solutions: https://stermi.medium.com/lets-play-ethernaut-ctf-learning-solidity-security-while-playing-1678bd6db3c4
+                    function verify(address signer, Bid memory bid, sigR, sigS, sigV) public pure returns (bool) {
+                        return signer == ecrecover(hashBid(bid), sigV, sigR, sigS);
+                    }
+                    ```
+            * wallets like Metamask can display the message in a more user-friendly manner
+                * the signer can actually check the data before signing
+                    * display in a human-readable way that users can understand and review before signing
+                * example
+                    ![Alt Text](img/eip721_metamask.png)
+            * before EIP712
+                * it was difficult for users to verify the data they were asked to sign
+                * wallet signing interfaces would display a hashed message string
+                    * the signer would have to assume that hash matched the message they thought they were signing
+            * use case
+                * meta-transactions
+                    * relayer pays the gas fees on behalf of the user
+                        * relayer = service responsible for submitting transactions on behalf of users
+                    * users sign a request (off-chain) for a specific action they want to perform on the blockchain
+                        * includes information like the target contract, function to call, and any required parameters
+* short address attack
+    * equivalent of minor SQL injection bug
+    * problem: leading zeros is taken from the amount, and given to the shortened address
+        * * means you've multiplied your amount by 1<<8 or 256
+            * after the exchange has checked your balance on their internal ledger
+        * reason: EVM pads all input data with 0s
+        * example
+            1. user B's address: 0xbbbbbb00
+            1. user A's balance: 512 tokens
+            1. A inputs B's address as 0xbbbbbb
+            1. site (incorrectly) interprets this as a valid address and constructs transaction
+                * selector: 0x01020304
+                * transaction: 0x01020304bbbbbbbb00000001
+            1. if we slice that back up into a 4-byte signature and 2 4-byte words
+                * ['0x01020304', '0xbbbbbb00', '0x000001??']
+            1. any index into the transaction data that hasn't been provided returns 0s
+                * trailing zeros do not change the actual address
+                    * `0x1234...5670` and `0x1234...567000` represent the same address
+            1. final argument being interpreted by the EVM as 0x00000100 = 256
+                * 256
+            1. given that 256 is still less than 512 (your comment), the transaction succeeds
+        * most vulnerable to this were large, shared wallets
+            * example: exchange hot wallets
+    * solution: smart contract must validate the length of an address input
+* manipulating contract balance
+    * problem: ether can be sent forcibly to a contract
+        * if contract has some decision logic using `address(this).balance` - attacked can influence it
+        * example
+            ```
+            selfdestruct(addressOfAttackedContract)
+            ```
+    * solution: there is no possible way to prevent forceful ether sending from happening
+* Ethernaut game
+    * Web3/Solidity based war game created by OpenZeppelin
+    * each level is a smart contract that needs to be ‘hacked’
+    * solutions: https://stermi.medium.com/lets-play-ethernaut-ctf-learning-solidity-security-while-playing-1678bd6db3c4
 
 ## design patterns
     * security
